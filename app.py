@@ -9,10 +9,12 @@ Original file is located at
 
 import streamlit as st
 import gdown
+import numpy as np 
 import pandas as pd
-import implicit
-from scipy.sparse import csr_matrix
-import numpy as np
+import tensorflow as tf
+from keras.models import Model
+from keras.layers import Embedding, Flatten, Input, Dense, Concatenate
+from sklearn.model_selection import train_test_split
 
 # Enlace del archivo de Google Drive
 url = 'https://drive.google.com/uc?id=1NmAZBoSj8YqWFbypAm8HYMj2YHbRyggT'  # Reemplaza con el ID de tu archivo
@@ -46,32 +48,55 @@ def filtrar_top_200_productos(categoria):
 
     return df2_top_200
 
-# Entrenar el modelo ALS
-def entrenar_modelo_als(df2_top_200):
-    df2_top_200['interaction'] = 1
+# Crear y entrenar el modelo NCF
+def entrenar_modelo_ncf(df2_top_200):
+    df2_top_200['interaction'] = 1  # Añadir columna de interacción
 
-    # Crear la matriz dispersa (producto-usuario)
-    df2_pivot = df2_top_200.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='interaction').fillna(0)
-    df_train_sparse = csr_matrix(df2_pivot.values)
+    # Crear mapeo de productos a índices consecutivos
+    unique_products = df2_top_200['COD_PRODUCTO'].unique()
+    product_to_index = {product: idx for idx, product in enumerate(unique_products)}
 
-    # Crear el modelo ALS
-    als_model = implicit.als.AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
-    als_model.fit(df_train_sparse)
+    # Mapear productos
+    df2_top_200['product_index'] = df2_top_200['COD_PRODUCTO'].map(product_to_index)
 
-    return als_model, df2_pivot.columns
+    # Definir tamaño del vocabulario
+    vocab_size = len(product_to_index)
 
-# Obtener recomendaciones con ALS
-def obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado, top_n=5):
-    if producto_seleccionado in df_pivot_columns:
-        product_idx = df_pivot_columns.get_loc(producto_seleccionado)
+    # Dividir los datos en entrenamiento y prueba
+    train_data, test_data = train_test_split(df2_top_200, test_size=0.2, random_state=42)
 
-        # Generar recomendaciones
-        recommended_products = als_model.recommend(product_idx, als_model.item_factors, N=top_n + 1)
-        recommended_products_list = [df_pivot_columns[i] for i, score in recommended_products if df_pivot_columns[i] != producto_seleccionado]
+    # Definir el modelo NCF
+    input_product = Input(shape=(1,))
+    embedding_product = Embedding(input_dim=vocab_size, output_dim=64)(input_product)
+    flatten_product = Flatten()(embedding_product)
 
-        return recommended_products_list
-    else:
-        return []
+    input_product_2 = Input(shape=(1,))
+    embedding_product_2 = Embedding(input_dim=vocab_size, output_dim=64)(input_product_2)
+    flatten_product_2 = Flatten()(embedding_product_2)
+
+    concatenated = Concatenate()([flatten_product, flatten_product_2])
+    dense_1 = Dense(128, activation='relu')(concatenated)
+    dense_2 = Dense(64, activation='relu')(dense_1)
+    output = Dense(vocab_size, activation='softmax')(dense_2)
+
+    model = Model(inputs=[input_product, input_product_2], outputs=output)
+    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+    # Entrenar el modelo
+    model.fit([train_data['product_index'], train_data['product_index']],
+              train_data['product_index'],
+              validation_data=([test_data['product_index'], test_data['product_index']], test_data['product_index']),
+              epochs=10,
+              batch_size=64)
+
+    return model, product_to_index, unique_products, test_data
+
+# Obtener recomendaciones con NCF
+def obtener_recomendaciones_ncf(model, predicciones, product_index, top_n=5):
+    """Obtener los mejores productos recomendados para un producto dado."""
+    recomendaciones = np.argsort(predicciones[product_index])[-top_n:][::-1]  # Obtener los índices de los mejores productos
+    productos_recomendados = [unique_products[i] for i in recomendaciones]  # Mapear a COD_PRODUCTO
+    return productos_recomendados
 
 # Streamlit Layout
 st.title("Sistema de Recomendación de Productos")
@@ -83,7 +108,7 @@ categoria_seleccionada = st.selectbox('Seleccione una Categoría', list(seccione
 # Entrenar con los 200 productos más vendidos de la categoría seleccionada
 if categoria_seleccionada:
     df2_top_200 = filtrar_top_200_productos(categoria_seleccionada)
-    als_model, df_pivot_columns = entrenar_modelo_als(df2_top_200)
+    model, product_to_index, unique_products, test_data = entrenar_modelo_ncf(df2_top_200)
 
     # Selección de Subcategoría
     subcategorias = df2_top_200['DESC_CLASE'].unique()
@@ -97,8 +122,12 @@ if categoria_seleccionada:
         producto_seleccionado = st.selectbox('Seleccione un Producto', productos_subcategoria)
 
         if producto_seleccionado:
-            # Generar recomendaciones
-            recomendaciones = obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado)
+            # Hacer predicciones
+            predicciones = model.predict([test_data['product_index'], test_data['product_index']])
+
+            # Obtener recomendaciones
+            product_index = product_to_index[producto_seleccionado]
+            recomendaciones = obtener_recomendaciones_ncf(model, predicciones, product_index)
 
             # Mostrar las recomendaciones
             st.subheader("Productos Recomendados:")
