@@ -67,13 +67,14 @@ def entrenar_modelo_als(df_top_200):
     df_train_sparse = csr_matrix(df_pivot.values)
 
     # Crear el modelo ALS con menos factores e iteraciones (para mayor rapidez)
-    als_model = implicit.als.AlternatingLeastSquares(factors=30, regularization=0.1, iterations=15)
+    als_model = implicit.als.AlternatingLeastSquares(factors=50, regularization=0.1, iterations=20)
     als_model.fit(df_train_sparse)
 
     return als_model, df_pivot.columns
 
 # Obtener recomendaciones con ALS
 def obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado, top_n=5):
+    # Validar si el producto seleccionado está en la matriz de productos
     if producto_seleccionado in df_pivot_columns:
         product_idx = df_pivot_columns.get_loc(producto_seleccionado)
 
@@ -83,43 +84,50 @@ def obtener_recomendaciones_als(als_model, df_pivot_columns, producto_selecciona
 
         return recommended_products_list
     else:
+        st.error(f"El producto seleccionado ({producto_seleccionado}) no se encuentra en los datos entrenados.")
         return []
 
 # Streamlit Layout
 st.title("Sistema de Recomendación de Productos")
-st.write("Seleccione una categoría, subcategoría y producto para recibir recomendaciones.")
 
-# Selección de Categoría
-categoria_seleccionada = st.selectbox('Seleccione una Categoría', list(secciones.keys()))
+# Layout más claro con columnas
+col1, col2 = st.columns(2)
 
-# Entrenar con los 200 productos más vendidos de la categoría seleccionada
-if categoria_seleccionada:
-    df_top_200 = filtrar_top_200_productos(categoria_seleccionada)
-    als_model, df_pivot_columns = entrenar_modelo_als(df_top_200)
+with col1:
+    st.header("CATEGORÍAS")
+    # Selección de Categoría
+    categoria_seleccionada = st.radio('Seleccione una Categoría', list(secciones.keys()))
 
-    # Selección de Subcategoría
-    subcategorias = df_top_200['DESC_CLASE'].unique()
-    subcategoria_seleccionada = st.selectbox('Seleccione una Subcategoría', subcategorias)
+    if categoria_seleccionada:
+        df_top_200 = filtrar_top_200_productos(categoria_seleccionada)
+        subcategorias = df_top_200['DESC_CLASE'].unique()
 
-    if subcategoria_seleccionada:
-        # Filtrar productos por la subcategoría seleccionada
-        productos_subcategoria = df_top_200[df_top_200['DESC_CLASE'] == subcategoria_seleccionada]['COD_PRODUCTO'].unique()
-        producto_seleccionado = st.selectbox('Seleccione un Producto', productos_subcategoria)
+        st.header("SUBCATEGORÍAS")
+        subcategoria_seleccionada = st.radio('Seleccione una Subcategoría', subcategorias)
 
-        if producto_seleccionado:
-            # Generar recomendaciones
-            recomendaciones = obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado)
+        if subcategoria_seleccionada:
+            productos_subcategoria = df_top_200[df_top_200['DESC_CLASE'] == subcategoria_seleccionada]['COD_PRODUCTO'].unique()
 
-            # Mostrar las recomendaciones
-            st.subheader("Productos Recomendados:")
-            if recomendaciones:
-                for producto in recomendaciones:
-                    st.write(f"- {producto}")
-            else:
-                st.write("No se encontraron recomendaciones.")
+            st.header("PRODUCTOS")
+            producto_seleccionado = st.selectbox('Seleccione un Producto', productos_subcategoria)
 
-            # Mostrar métricas (placeholders)
-            st.subheader("Métricas de Recomendación:")
-            st.write("Precisión: 0.85")  
-            st.write("Recall: 0.75")  
-            st.write("F1-Score: 0.80")  
+with col2:
+    if categoria_seleccionada and subcategoria_seleccionada and producto_seleccionado:
+        # Entrenar el modelo ALS con los 200 productos más vendidos
+        als_model, df_pivot_columns = entrenar_modelo_als(df_top_200)
+
+        # Generar recomendaciones
+        recomendaciones = obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado)
+
+        st.subheader("Productos Recomendados:")
+        if recomendaciones:
+            for producto in recomendaciones:
+                st.write(f"- {producto}")
+        else:
+            st.write("No se encontraron recomendaciones.")
+
+        # Mostrar métricas (placeholders)
+        st.subheader("Métricas de Recomendación:")
+        st.write("Precisión: 0.85")  
+        st.write("Recall: 0.75")  
+        st.write("F1-Score: 0.80")  
