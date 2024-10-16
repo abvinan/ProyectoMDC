@@ -24,40 +24,29 @@ def cargar_datos():
 
 # 2. Filtrar productos por categoría seleccionada
 def filtrar_por_categoria(df, categoria_seleccionada):
-    # Asociación de las categorías con las secciones correctas
     secciones = {
         'Limpieza del Hogar': 14,
         'Cuidado Personal': 16,
         'Bebidas': 24,
         'Alimentos': 25
     }
-    
-    # Obtenemos la sección correspondiente a la categoría seleccionada
     seccion = secciones.get(categoria_seleccionada)
-    
-    # Filtrar el dataframe por la sección correspondiente
-    df_filtrado = df[df['SECCION'] == seccion]
-    if df_filtrado.empty:
-        st.warning(f"No se encontraron productos para la categoría seleccionada: {categoria_seleccionada}")
-    return df_filtrado
+    return df[df['SECCION'] == seccion]
 
 # 3. Obtener el top 200 productos más vendidos de la categoría seleccionada
 def obtener_top_200_productos(df_categoria):
     if df_categoria.empty:
-        return pd.DataFrame()  # Si el DataFrame está vacío, devolvemos un DataFrame vacío
+        return pd.DataFrame()
     else:
         top_200_productos = df_categoria.groupby('COD_PRODUCTO')['CANTIDAD'].sum().nlargest(200).index
         return df_categoria[df_categoria['COD_PRODUCTO'].isin(top_200_productos)]
 
 # 4. Preparar datos para entrenar el modelo ALS
 def preparar_datos_para_entrenar(df):
-    if len(df) > 0:  # Verificar si hay suficientes datos
+    if len(df) > 0:
         df_train, df_test = train_test_split(df, test_size=0.3, random_state=42)
-
-        # Crear matrices de productos comprados juntos
         df_train_compras = df_train.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
         df_test_compras = df_test.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
-    
         return df_train_compras, df_test_compras
     else:
         st.error("No hay suficientes datos para dividir en entrenamiento y prueba.")
@@ -66,15 +55,9 @@ def preparar_datos_para_entrenar(df):
 # 5. Entrenar el modelo ALS
 def entrenar_modelo_als(df_train_compras):
     if df_train_compras is not None:
-        # Convertir los datos de entrenamiento a una matriz dispersa CSR
         df_train_sparse = csr_matrix(df_train_compras.values)
-
-        # Crear el modelo ALS
         als_model = implicit.als.AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
-
-        # Entrenar el modelo ALS
         als_model.fit(df_train_sparse)
-
         return als_model, df_train_sparse
     else:
         return None, None
@@ -83,35 +66,37 @@ def entrenar_modelo_als(df_train_compras):
 def generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse):
     if df_train_compras is not None and als_model is not None:
         als_recommendations = {}
-        top_200_productos = df_train_compras.columns  # Obtener todos los productos del top 200 (ya filtrado)
-
+        top_200_productos = df_train_compras.columns
         for product_id in top_200_productos:
-            # Obtener el índice del producto en df_train_compras
             product_idx = df_train_compras.columns.get_loc(product_id)
-
-            # Obtener las recomendaciones para el producto
             recommended_products = als_model.recommend(product_idx, df_train_sparse.T, N=6, filter_already_liked_items=False)
-
-            # Filtrar el propio producto y almacenar las recomendaciones
             recommended_products_list = []
             for i, score in zip(recommended_products[0], recommended_products[1]):
                 if df_train_compras.columns[i] != product_id:
                     recommended_products_list.append(df_train_compras.columns[i])
-
-            # Guardar las recomendaciones (máximo 5)
             als_recommendations[product_id] = recommended_products_list[:5]
-
         return als_recommendations
     else:
         st.error("No se pudieron generar recomendaciones debido a la falta de datos o error en el entrenamiento.")
         return {}
 
-# 7. Mostrar recomendaciones para un producto específico (selección de subcategoría y producto)
-def mostrar_recomendaciones_producto_especifico(product_id, als_recommendations):
+# 7. Mostrar recomendaciones en formato tabla con descripción, precio, y margen
+def mostrar_recomendaciones_tabla(product_id, als_recommendations, df):
     if product_id in als_recommendations:
-        return f"Recomendaciones ALS para el producto {product_id}: {als_recommendations[product_id]}"
+        recomendaciones = als_recommendations[product_id]
+        tabla = pd.DataFrame(columns=['Producto', 'Precio', 'Margen'])
+
+        for rec in recomendaciones:
+            producto = df[df['COD_PRODUCTO'] == rec]
+            descripcion = producto['DESC_PRODUCTO'].values[0]
+            precio = producto['VALOR_PVSI'].values[0]
+            costo = producto['COSTO'].values[0]
+            margen = round(((precio - costo) / precio) * 100, 2)  # Calcular margen
+            tabla = tabla.append({'Producto': descripcion, 'Precio': precio, 'Margen': margen}, ignore_index=True)
+
+        st.write(tabla)
     else:
-        return f"No se encontraron recomendaciones para el producto {product_id}"
+        st.write("No se encontraron recomendaciones para este producto.")
 
 # Configurar Streamlit
 
@@ -119,14 +104,6 @@ st.title("Sistema de Recomendación de Productos")
 
 # Cargar los datos
 df = cargar_datos()
-
-# **Vista previa de los datos cargados**
-st.write("Vista previa de los datos cargados:")
-st.write(df.head())  # Mostrar las primeras filas del dataframe
-
-# Verificar las columnas del DataFrame
-st.write("Columnas del DataFrame:")
-st.write(df.columns)
 
 # Selección de la categoría
 categoria_seleccionada = st.sidebar.radio(
@@ -141,24 +118,32 @@ df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
 if df_categoria.empty:
     st.warning(f"No se encontraron productos para la categoría seleccionada: {categoria_seleccionada}")
 else:
+    # Selección de la subcategoría
+    subcategorias_disponibles = df_categoria['DESC_CLASE'].unique()
+    subcategoria_seleccionada = st.sidebar.selectbox(
+        "Seleccione una Subcategoría",
+        subcategorias_disponibles
+    )
+
+    # Filtrar productos de la subcategoría seleccionada
+    df_subcategoria = df_categoria[df_categoria['DESC_CLASE'] == subcategoria_seleccionada]
+    productos_disponibles = df_subcategoria['DESC_PRODUCTO'].unique()
+
+    # Selección de producto
+    producto_seleccionado = st.sidebar.selectbox(
+        "Seleccione un Producto",
+        productos_disponibles
+    )
+
+    # Obtener el ID del producto seleccionado
+    producto_id = df_subcategoria[df_subcategoria['DESC_PRODUCTO'] == producto_seleccionado]['COD_PRODUCTO'].values[0]
+
     # Obtener el top 200 productos
     df_filtrado_top_200 = obtener_top_200_productos(df_categoria)
 
     if df_filtrado_top_200.empty:
         st.error("No se encontraron productos suficientes en la categoría para generar recomendaciones.")
     else:
-        # Selección de la subcategoría
-        subcategoria_seleccionada = st.sidebar.selectbox(
-            "Seleccione una Subcategoría",
-            df_categoria['DESC_CLASE'].unique()
-        )
-
-        # Selección de producto
-        producto_seleccionado = st.sidebar.selectbox(
-            "Seleccione un Producto",
-            df_filtrado_top_200['DESC_PRODUCTO'].unique()
-        )
-
         # Preparar datos para entrenar el modelo ALS
         df_train_compras, df_test_compras = preparar_datos_para_entrenar(df_filtrado_top_200)
 
@@ -168,10 +153,6 @@ else:
         # Generar las recomendaciones para el top 200 productos
         als_recommendations = generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse)
 
-        # Mostrar las recomendaciones para el producto seleccionado
-        producto_id = df_filtrado_top_200[df_filtrado_top_200['DESC_PRODUCTO'] == producto_seleccionado]['COD_PRODUCTO'].values[0]
-        resultado_recomendaciones = mostrar_recomendaciones_producto_especifico(producto_id, als_recommendations)
-
-        # Mostrar en pantalla
+        # Mostrar las recomendaciones en formato de tabla
         st.write("**Productos recomendados:**")
-        st.write(resultado_recomendaciones)
+        mostrar_recomendaciones_tabla(producto_id, als_recommendations, df)
