@@ -8,33 +8,23 @@ Original file is located at
 """
 
 import streamlit as st
+import gdown
 import pandas as pd
 import implicit
 from scipy.sparse import csr_matrix
+import numpy as np
 import os
 
-# Ruta local del archivo (para evitar descargas repetidas)
-archivo_datos = 'datos.csv'
+# Enlace del archivo de Google Drive
+url = 'https://drive.google.com/uc?id=1NmAZBoSj8YqWFbypAm8HYMj2YHbRyggT'
+output = 'datos.csv'
 
-# Verificar si el archivo ya existe
-if not os.path.exists(archivo_datos):
-    # Descargar archivo solo si no existe
-    url = 'https://drive.google.com/uc?id=1NmAZBoSj8YqWFbypAm8HYMj2YHbRyggT'
-    import gdown
-    gdown.download(url, archivo_datos, quiet=False)
+# Descargar el archivo solo si no existe
+if not os.path.exists(output):
+    gdown.download(url, output, quiet=False)
 
-# Cargar solo las columnas necesarias con tipos de datos optimizados
-use_cols = ['COD_PRODUCTO', 'CANTIDAD', 'SECCION', 'DESC_CLASE', 'COD_FACTURA']
-dtypes = {
-    'COD_PRODUCTO': 'int32',
-    'CANTIDAD': 'int16',
-    'SECCION': 'int8',
-    'DESC_CLASE': 'category',
-    'COD_FACTURA': 'int32'
-}
-
-# Cargar los datos optimizados
-df = pd.read_csv(archivo_datos, sep=',', encoding="ISO-8859-1", usecols=use_cols, dtype=dtypes)
+# Cargar los datos en un DataFrame de pandas
+df = pd.read_csv(output, sep=',', encoding="ISO-8859-1", low_memory=False)
 
 # Mapeo de categorías con SECCION
 secciones = {
@@ -66,15 +56,14 @@ def entrenar_modelo_als(df_top_200):
     df_pivot = df_top_200.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='interaction').fillna(0)
     df_train_sparse = csr_matrix(df_pivot.values)
 
-    # Crear el modelo ALS con menos factores e iteraciones (para mayor rapidez)
-    als_model = implicit.als.AlternatingLeastSquares(factors=50, regularization=0.1, iterations=20)
+    # Crear el modelo ALS
+    als_model = implicit.als.AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
     als_model.fit(df_train_sparse)
 
     return als_model, df_pivot.columns
 
 # Obtener recomendaciones con ALS
 def obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado, top_n=5):
-    # Validar si el producto seleccionado está en la matriz de productos
     if producto_seleccionado in df_pivot_columns:
         product_idx = df_pivot_columns.get_loc(producto_seleccionado)
 
@@ -84,17 +73,16 @@ def obtener_recomendaciones_als(als_model, df_pivot_columns, producto_selecciona
 
         return recommended_products_list
     else:
-        st.error(f"El producto seleccionado ({producto_seleccionado}) no se encuentra en los datos entrenados.")
         return []
 
 # Streamlit Layout
-st.title("Sistema de Recomendación de Productos")
+st.title("SISTEMA DE RECOMENDACIÓN DE PRODUCTOS")
 
-# Layout más claro con columnas
-col1, col2 = st.columns(2)
+# Crear layout con dos columnas para menú a la izquierda y recomendaciones a la derecha
+col1, col2 = st.columns([1, 3])
 
 with col1:
-    st.header("CATEGORÍAS")
+    st.subheader("CATEGORÍAS")
     # Selección de Categoría
     categoria_seleccionada = st.radio('Seleccione una Categoría', list(secciones.keys()))
 
@@ -102,13 +90,13 @@ with col1:
         df_top_200 = filtrar_top_200_productos(categoria_seleccionada)
         subcategorias = df_top_200['DESC_CLASE'].unique()
 
-        st.header("SUBCATEGORÍAS")
+        st.subheader("SUBCATEGORÍAS")
         subcategoria_seleccionada = st.radio('Seleccione una Subcategoría', subcategorias)
 
         if subcategoria_seleccionada:
-            productos_subcategoria = df_top_200[df_top_200['DESC_CLASE'] == subcategoria_seleccionada]['COD_PRODUCTO'].unique()
+            productos_subcategoria = df_top_200[df_top_200['DESC_CLASE'] == subcategoria_seleccionada]['DESC_PRODUCTO'].unique()
 
-            st.header("PRODUCTOS")
+            st.subheader("PRODUCTOS")
             producto_seleccionado = st.selectbox('Seleccione un Producto', productos_subcategoria)
 
 with col2:
@@ -119,15 +107,15 @@ with col2:
         # Generar recomendaciones
         recomendaciones = obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado)
 
-        st.subheader("Productos Recomendados:")
+        st.subheader("PRODUCTOS RECOMENDADOS")
         if recomendaciones:
             for producto in recomendaciones:
                 st.write(f"- {producto}")
         else:
             st.write("No se encontraron recomendaciones.")
 
-        # Mostrar métricas (placeholders)
-        st.subheader("Métricas de Recomendación:")
+        # Mostrar métricas placeholder
+        st.subheader("MÉTRICAS DE RECOMENDACIÓN")
         st.write("Precisión: 0.85")  
         st.write("Recall: 0.75")  
-        st.write("F1-Score: 0.80")  
+        st.write("F1-Score: 0.80")
