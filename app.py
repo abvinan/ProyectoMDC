@@ -16,10 +16,10 @@ import numpy as np
 import os
 
 # Enlace del archivo de Google Drive
-url = 'https://drive.google.com/uc?id=1NmAZBoSj8YqWFbypAm8HYMj2YHbRyggT'
+url = 'https://drive.google.com/uc?id=1NmAZBoSj8YqWFbypAm8HYMj2YHbRyggT'  
 output = 'datos.csv'
 
-# Descargar el archivo solo si no existe
+# Descargar archivo de Google Drive solo si no existe
 if not os.path.exists(output):
     gdown.download(url, output, quiet=False)
 
@@ -37,30 +37,30 @@ secciones = {
 # Filtrar los 200 productos más vendidos por categoría
 def filtrar_top_200_productos(categoria):
     seccion = secciones[categoria]
-    df_filtrado = df[df['SECCION'] == seccion]
+    df2_filtrado = df[df['SECCION'] == seccion]
 
     # Agrupar productos por cantidad vendida y obtener el top 200
-    top_200_vendidos = df_filtrado.groupby('COD_PRODUCTO')['CANTIDAD'].sum().reset_index()
+    top_200_vendidos = df2_filtrado.groupby('COD_PRODUCTO')['CANTIDAD'].sum().reset_index()
     top_200_vendidos = top_200_vendidos.sort_values(by='CANTIDAD', ascending=False).head(200)
 
     # Filtrar el DataFrame para que solo contenga los 200 productos más vendidos
-    df_top_200 = df_filtrado[df_filtrado['COD_PRODUCTO'].isin(top_200_vendidos['COD_PRODUCTO'])]
+    df2_top_200 = df2_filtrado[df2_filtrado['COD_PRODUCTO'].isin(top_200_vendidos['COD_PRODUCTO'])]
 
-    return df_top_200
+    return df2_top_200
 
 # Entrenar el modelo ALS
-def entrenar_modelo_als(df_top_200):
-    df_top_200['interaction'] = 1  # Añadir columna de interacción
+def entrenar_modelo_als(df2_top_200):
+    df2_top_200['interaction'] = 1
 
     # Crear la matriz dispersa (producto-usuario)
-    df_pivot = df_top_200.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='interaction').fillna(0)
-    df_train_sparse = csr_matrix(df_pivot.values)
+    df2_pivot = df2_top_200.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='interaction').fillna(0)
+    df_train_sparse = csr_matrix(df2_pivot.values)
 
     # Crear el modelo ALS
     als_model = implicit.als.AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
     als_model.fit(df_train_sparse)
 
-    return als_model, df_pivot.columns
+    return als_model, df2_pivot.columns
 
 # Obtener recomendaciones con ALS
 def obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado, top_n=5):
@@ -78,7 +78,7 @@ def obtener_recomendaciones_als(als_model, df_pivot_columns, producto_selecciona
 # Streamlit Layout
 st.title("SISTEMA DE RECOMENDACIÓN DE PRODUCTOS")
 
-# Crear layout con dos columnas para menú a la izquierda y recomendaciones a la derecha
+# Crear layout con dos columnas
 col1, col2 = st.columns([1, 3])
 
 with col1:
@@ -87,14 +87,14 @@ with col1:
     categoria_seleccionada = st.radio('Seleccione una Categoría', list(secciones.keys()))
 
     if categoria_seleccionada:
-        df_top_200 = filtrar_top_200_productos(categoria_seleccionada)
-        subcategorias = df_top_200['DESC_CLASE'].unique()
+        df2_top_200 = filtrar_top_200_productos(categoria_seleccionada)
+        subcategorias = df2_top_200['DESC_CLASE'].unique()
 
         st.subheader("SUBCATEGORÍAS")
         subcategoria_seleccionada = st.radio('Seleccione una Subcategoría', subcategorias)
 
         if subcategoria_seleccionada:
-            productos_subcategoria = df_top_200[df_top_200['DESC_CLASE'] == subcategoria_seleccionada]['DESC_PRODUCTO'].unique()
+            productos_subcategoria = df2_top_200[df2_top_200['DESC_CLASE'] == subcategoria_seleccionada]['DESC_PRODUCTO'].unique()
 
             st.subheader("PRODUCTOS")
             producto_seleccionado = st.selectbox('Seleccione un Producto', productos_subcategoria)
@@ -102,7 +102,7 @@ with col1:
 with col2:
     if categoria_seleccionada and subcategoria_seleccionada and producto_seleccionado:
         # Entrenar el modelo ALS con los 200 productos más vendidos
-        als_model, df_pivot_columns = entrenar_modelo_als(df_top_200)
+        als_model, df_pivot_columns = entrenar_modelo_als(df2_top_200)
 
         # Generar recomendaciones
         recomendaciones = obtener_recomendaciones_als(als_model, df_pivot_columns, producto_seleccionado)
