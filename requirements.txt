@@ -6,3 +6,4 @@ scipy
 implicit
 scikit-learn
 matplotlib
+seaborn
