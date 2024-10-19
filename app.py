@@ -192,6 +192,8 @@ def graficar_margen_y_ganancia(df_ventas, productos_recomendados):
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
+# Llamada a la función
+graficar_margen_y_ganancia(df_ventas, productos_recomendados)
 
 
 def graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_seleccionado):
