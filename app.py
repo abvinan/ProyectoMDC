@@ -134,22 +134,26 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
 
 # 9. Visualización de gráficos: ventas mensuales, margen de ganancias, frecuencia de compra conjunta
 def graficar_ventas_mensuales(df_ventas, productos_recomendados):
-    # Crear la figura y ajustar el tamaño del gráfico
-    fig, ax = plt.subplots(figsize=(8, 6))  # Tamaño más pequeño
+    fig, ax = plt.subplots(figsize=(8, 6))  # Tamaño ajustado
 
-    # Cambiar 'COD_PRODUCTO' por el código correcto
-    ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('MES')['Cantidad Vendida'].sum()
+    # Filtrar las ventas solo de los productos recomendados
+    ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)]
 
-    # Graficar las ventas con color naranja claro
-    ventas.plot(kind='bar', ax=ax, color='#F4A261')  # Color naranja bajito
+    # Crear un gráfico de barras apiladas para ver la cantidad vendida por mes y por producto
+    ventas_pivot = ventas.pivot_table(index='MES', columns='COD_PRODUCTO', values='Cantidad Vendida', aggfunc='sum')
 
-    # Configurar título y etiquetas
+    # Crear el gráfico
+    ventas_pivot.plot(kind='bar', stacked=True, ax=ax, color=plt.cm.Paired.colors)
+
+    # Configurar el título y etiquetas
     ax.set_title("Ventas Mensuales por Producto Recomendado")
     ax.set_xlabel("MES")
     ax.set_ylabel("Cantidad Vendida")
+    ax.legend(title="Productos Recomendados")
 
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
+
 
 def graficar_margen_ganancias(df_ventas, productos_recomendados):
     fig, ax = plt.subplots()
