@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1sG261uDkEwoGdZmdKwHxmxqeeVN5cGxZ
 """
 import pandas as pd
+import numpy as np
 import streamlit as st
 import implicit
 from scipy.sparse import csr_matrix
