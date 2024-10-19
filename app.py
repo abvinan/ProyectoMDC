@@ -27,7 +27,7 @@ def cargar_datos():
 # Cargar el segundo archivo desde Google Drive (ventas mensuales)
 @st.cache_data
 def cargar_ventas_mensuales():
-    url = 'https://drive.google.com/uc?id=1Lkerx23ZQgadyjCN3Kg5I6BbAUJxksXy'
+    url = 'https://drive.google.com/uc?id=1-21lc0LEqQLeph9YmnqIv5dhnDMzV15'
     output = 'ventas_mensuales.csv'
     gdown.download(url, output, quiet=False)  # Descargar el archivo
     return pd.read_csv(output)
