@@ -158,15 +158,6 @@ def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     ax.set_ylabel("Unidades Vendidas")  # Cambio solicitado
     st.pyplot(fig)
 
-def graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_seleccionado):
-    matriz_frecuencia = pd.crosstab(df['COD_FACTURA'], df['COD_PRODUCTO']).astype(bool).astype(int)
-    productos_conjuntos = productos_recomendados + [producto_seleccionado]
-    matriz_frecuencia = matriz_frecuencia[productos_conjuntos].T.dot(matriz_frecuencia[productos_conjuntos])
-    
-    fig, ax = plt.subplots()
-    sns.heatmap(matriz_frecuencia, annot=True, cmap='coolwarm', ax=ax)
-    ax.set_title("Frecuencia de Compra Conjunta entre Productos")
-    st.pyplot(fig)
 
 # Configuración de la aplicación Streamlit
 st.title("Sistema de Recomendación de Productos")
@@ -226,8 +217,3 @@ else:
         productos_recomendados = als_recommendations.get(producto_id, [])
         st.write("**Gráfico de Ventas Mensuales por Producto Recomendado:**")
         graficar_ventas_mensuales(df_ventas, productos_recomendados)
-
-
-        # Gráfico de la frecuencia de compra conjunta (mapa de calor)
-        st.write("**Mapa de Calor de Frecuencia de Compra Conjunta entre Productos:**")
-        graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_id)
