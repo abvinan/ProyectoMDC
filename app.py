@@ -161,25 +161,32 @@ def graficar_ventas_mensuales(df_ventas, productos_recomendados):
 def graficar_margen_ganancias(df_ventas, productos_recomendados):
     fig, ax = plt.subplots(figsize=(6, 4))  # Ajuste del tamaño
     
-    # Filtrar por los productos recomendados
-    margen_data = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('COD_PRODUCTO').mean()
+    # Filtrar los productos recomendados en df_ventas
+    margen_data = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)]
     
-    # Calcular el margen de ganancia: ((Precio Total - Costo Total) / Precio Total) * 100
+    # Calcular el margen basado en la fórmula: (Precio Total - Costo Total) / Precio Total * 100
     margen_data['Margen'] = ((margen_data['Precio Total'] - margen_data['Costo total']) / margen_data['Precio Total']) * 100
     
-    # Crear el gráfico de barras con los márgenes
-    ax.bar(margen_data.index.astype(str), margen_data['Margen'], color='skyblue')
+    # Obtener los nombres de los productos recomendados
+    nombres_productos = margen_data['DESC_PRODUCTO'].values
     
+    # Crear el gráfico de barras con los márgenes y los nombres de productos
+    ax.bar(nombres_productos, margen_data['Margen'], color='skyblue')
+
     # Añadir etiquetas de valor a las barras
     for i, v in enumerate(margen_data['Margen']):
         ax.text(i, v + (2 if v > 0 else -2), f'{v:.2f}%', ha='center', color='black')
-    
+
+    # Ajustes del gráfico
     ax.set_title("Margen de Ganancia por Producto")
     ax.set_xlabel("Producto")
     ax.set_ylabel("Margen (%)")
     plt.xticks(rotation=45, ha='right')  # Rotar los nombres para que sean legibles
     plt.tight_layout()  # Ajustar para que los elementos no se solapen
+    
+    # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
+
 
 
 def graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_seleccionado):
