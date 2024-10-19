@@ -155,8 +155,9 @@ def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     
     ax.set_title("Ventas Mensuales por Producto Recomendado")
     ax.set_xlabel("MES")
-    ax.set_ylabel("Cantidad Vendida")
+    ax.set_ylabel("Unidades Vendidas")  # Cambio solicitado
     st.pyplot(fig)
+
 
 def graficar_margen_ganancias(df_ventas, productos_recomendados):
     fig, ax = plt.subplots()
