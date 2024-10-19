@@ -95,7 +95,7 @@ def generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse
         return {}
 
 # 8. Mostrar recomendaciones en formato tabla con descripción, precio, margen y promedio mensual de unidades vendidas
-# Mostrar las recomendaciones en formato de tabla vertical
+# Mostrar las recomendaciones en formato de tabla vertical con ajustes solicitados
 def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas):
     if product_id in als_recommendations:
         recomendaciones = als_recommendations[product_id]
@@ -109,19 +109,25 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
                 costo = producto['COSTO'].values[0]
                 margen = round(((precio - costo) / precio) * 100, 2)
 
-                # Obtener el promedio mensual de ventas del producto recomendado
+                # Obtener el promedio mensual de ventas del producto recomendado y redondearlo al entero superior
                 promedio_unidades = df_ventas[df_ventas['COD_PRODUCTO'] == rec]['Cantidad Vendida'].mean()
+                promedio_unidades_redondeado = int(np.ceil(promedio_unidades))  # Redondear al entero superior
 
                 data.append({
                     'Producto': descripcion, 
                     'Precio': f"${precio:.2f}", 
                     'Margen': f"{margen}%", 
-                    'Promedio Unidades Vendidas': round(promedio_unidades, 2)
+                    'Promedio de unidades vendidas en el mes': promedio_unidades_redondeado
                 })
         
         # Convertir la lista de dicts en un DataFrame para mostrar en tabla verticalmente
         tabla = pd.DataFrame(data)
-        st.write(tabla)  # Mostrar verticalmente
+        
+        # Ajustar los índices para que empiecen desde 1
+        tabla.index = tabla.index + 1
+        
+        # Mostrar la tabla con un tamaño mayor y sin necesidad de scroll
+        st.dataframe(tabla, height=400)  # Cambia el valor de height si quieres que sea más alto o más bajo
     else:
         st.write("No se encontraron recomendaciones para este producto.")
 
