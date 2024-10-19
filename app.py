@@ -27,7 +27,7 @@ def cargar_datos():
 # Cargar el segundo archivo desde Google Drive (ventas mensuales)
 @st.cache_data
 def cargar_ventas_mensuales():
-    url = 'https://drive.google.com/uc?id=1-21lc0LEqQLeph9YmnqIv5dhnDMzV15q'
+    url = 'https://drive.google.com/uc?id=1Lkerx23ZQgadyjCN3Kg5I6BbAUJxksXy'
     output = 'ventas_mensuales.csv'
     gdown.download(url, output, quiet=False)  # Descargar el archivo
     return pd.read_csv(output)
@@ -132,3 +132,97 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
     else:
         st.write("No se encontraron recomendaciones para este producto.")
 
+# 9. Visualización de gráficos: ventas mensuales, margen de ganancias, frecuencia de compra conjunta
+def graficar_ventas_mensuales(df_ventas, productos_recomendados):
+    fig, ax = plt.subplots()
+    # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
+    ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('MES')['Cantidad Vendida'].sum()
+    ventas.plot(kind='bar', ax=ax)
+    ax.set_title("Ventas Mensuales por Producto Recomendado")
+    st.pyplot(fig)
+
+def graficar_margen_ganancias(df_ventas, productos_recomendados):
+    fig, ax = plt.subplots()
+    # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
+    df_ventas['Margen'] = ((df_ventas['Precio Total'] - df_ventas['Cantidad Vendida']) / df_ventas['Precio Total']) * 100
+    margen = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('COD_PRODUCTO')['Margen'].mean()
+    margen.plot(kind='bar', ax=ax)
+    ax.set_title("Margen de Ganancia por Producto")
+    st.pyplot(fig)
+
+def graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_seleccionado):
+    matriz_frecuencia = pd.crosstab(df['COD_FACTURA'], df['COD_PRODUCTO']).astype(bool).astype(int)
+    productos_conjuntos = productos_recomendados + [producto_seleccionado]
+    matriz_frecuencia = matriz_frecuencia[productos_conjuntos].T.dot(matriz_frecuencia[productos_conjuntos])
+    
+    fig, ax = plt.subplots()
+    sns.heatmap(matriz_frecuencia, annot=True, cmap='coolwarm', ax=ax)
+    ax.set_title("Frecuencia de Compra Conjunta entre Productos")
+    st.pyplot(fig)
+
+# Configuración de la aplicación Streamlit
+st.title("Sistema de Recomendación de Productos")
+
+# Cargar datos
+df = cargar_datos()
+df_ventas = cargar_ventas_mensuales()
+
+# Selección de categoría
+categoria_seleccionada = st.sidebar.radio("Seleccione una Categoría", ('Limpieza del Hogar', 'Cuidado Personal', 'Bebidas', 'Alimentos'))
+
+# Filtrar productos por categoría
+df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
+
+if df_categoria.empty:
+    st.warning(f"No se encontraron productos para la categoría seleccionada: {categoria_seleccionada}")
+else:
+    # Selección de subcategoría
+    subcategorias_disponibles = df_categoria['DESC_CLASE'].unique()
+    subcategoria_seleccionada = st.sidebar.selectbox("Seleccione una Subcategoría", subcategorias_disponibles)
+
+    # Filtrar productos por subcategoría
+    df_subcategoria = df_categoria[df_categoria['DESC_CLASE'] == subcategoria_seleccionada]
+    productos_disponibles = df_subcategoria['DESC_PRODUCTO'].unique()
+
+    # Selección de producto
+    producto_seleccionado = st.sidebar.selectbox("Seleccione un Producto", productos_disponibles)
+    producto_id = df_subcategoria[df_subcategoria['DESC_PRODUCTO'] == producto_seleccionado]['COD_PRODUCTO'].values[0]
+
+    # Obtener el top 200 productos
+    df_filtrado_top_200 = obtener_top_200_productos
+    # Obtener el top 200 productos
+    df_filtrado_top_200 = obtener_top_200_productos(df_categoria)
+
+    if df_filtrado_top_200.empty:
+        st.error("No se encontraron productos suficientes en la categoría para generar recomendaciones.")
+    else:
+        # Preparar datos para entrenar el modelo ALS
+        df_train_compras, df_test_compras = preparar_datos_para_entrenar(df_filtrado_top_200)
+
+        # Entrenar el modelo ALS
+        als_model, df_train_sparse = entrenar_modelo_als(df_train_compras)
+
+        # Generar las recomendaciones para el top 200 productos
+        als_recommendations = generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse)
+
+        # Mostrar las recomendaciones en formato de tabla (productos recomendados horizontalmente)
+        st.write("**Productos recomendados:**")
+        mostrar_recomendaciones_tabla(producto_id, als_recommendations, df, df_ventas)
+
+        # Obtener el top 5 de productos más vendidos en la categoría seleccionada
+        def obtener_top_5_ventas_categoria(df_ventas, categoria_seleccionada):
+            top_5_productos = df_ventas[df_ventas['Categoria'] == categoria_seleccionada].groupby('COD_PRODUCTO')['Cantidad Vendida'].sum().nlargest(5)
+            return df_ventas[df_ventas['COD_PRODUCTO'].isin(top_5_productos.index)]      
+
+        # Visualización de las ventas mensuales por producto recomendado
+        productos_recomendados = als_recommendations.get(producto_id, [])
+        st.write("**Gráfico de Ventas Mensuales por Producto Recomendado:**")
+        graficar_ventas_mensuales(df_ventas, productos_recomendados)
+
+        # Gráfico del margen de ganancias en relación a las ventas de los productos recomendados
+        st.write("**Gráfico del Margen de Ganancia en Relación a las Ventas:**")
+        graficar_margen_ganancias(df_ventas, productos_recomendados)
+
+        # Gráfico de la frecuencia de compra conjunta (mapa de calor)
+        st.write("**Mapa de Calor de Frecuencia de Compra Conjunta entre Productos:**")
+        graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_id)
