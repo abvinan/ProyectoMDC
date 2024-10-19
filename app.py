@@ -27,7 +27,7 @@ def cargar_datos():
 # Cargar el segundo archivo desde Google Drive (ventas mensuales)
 @st.cache_data
 def cargar_ventas_mensuales():
-    url = 'https://drive.google.com/uc?id=1Lkerx23ZQgadyjCN3Kg5I6BbAUJxksXy'
+    url = 'https://drive.google.com/uc?id=1-21lc0LEqQLeph9YmnqIv5dhnDMzV15q'
     output = 'ventas_mensuales.csv'
     gdown.download(url, output, quiet=False)  # Descargar el archivo
     return pd.read_csv(output)
@@ -158,19 +158,17 @@ def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     ax.set_ylabel("Unidades Vendidas")  # Cambio solicitado
     st.pyplot(fig)
 
-
-def graficar_margen_ganancias(df_ventas, productos_recomendados, df):
+def graficar_margen_ganancias(df_ventas, productos_recomendados):
     fig, ax = plt.subplots(figsize=(6, 4))  # Ajuste del tamaño
     
-    # Cambiar 'COD_PRODUCTO' por los nombres de los productos
+    # Filtrar por los productos recomendados
     margen_data = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('COD_PRODUCTO').mean()
-    margen_data['Margen'] = ((margen_data['Precio Total'] - margen_data['Cantidad Vendida']) / margen_data['Precio Total']) * 100
     
-    # Obtener los nombres de los productos recomendados
-    nombres_productos = df[df['COD_PRODUCTO'].isin(productos_recomendados)]['DESC_PRODUCTO'].values
+    # Calcular el margen de ganancia: ((Precio Total - Costo Total) / Precio Total) * 100
+    margen_data['Margen'] = ((margen_data['Precio Total'] - margen_data['Costo total']) / margen_data['Precio Total']) * 100
     
-    # Crear el gráfico de barras con los márgenes y los nombres de productos
-    ax.bar(nombres_productos, margen_data['Margen'], color='skyblue')
+    # Crear el gráfico de barras con los márgenes
+    ax.bar(margen_data.index.astype(str), margen_data['Margen'], color='skyblue')
     
     # Añadir etiquetas de valor a las barras
     for i, v in enumerate(margen_data['Margen']):
