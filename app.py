@@ -221,7 +221,3 @@ else:
         st.write("**Mapa de Calor de Frecuencia de Compra Conjunta entre Productos:**")
         graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_id)
 
-# Mostrar los nombres de las columnas del archivo de ventas cargado
-st.write("Columnas del archivo de ventas mensuales:")
-st.write(df_ventas.columns)
-
