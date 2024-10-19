@@ -96,8 +96,7 @@ def generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse
         return {}
 
 # 8. Mostrar recomendaciones en formato tabla con descripción, precio, margen y promedio mensual de unidades vendidas
-# Mostrar las recomendaciones en formato de tabla vertical con ajustes solicitados
-# Mostrar las recomendaciones en formato de tabla vertical con ajustes solicitados
+
 def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas):
     if product_id in als_recommendations:
         recomendaciones = als_recommendations[product_id]
@@ -119,7 +118,7 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
                     'Producto': descripcion, 
                     'Precio': f"${precio:.2f}", 
                     'Margen': f"{margen}%", 
-                    'Unidades vendidas en el mes': promedio_unidades_redondeado  # Cambio en el nombre de la columna
+                    'Promedio de unidades vendidas en el mes': promedio_unidades_redondeado  # Cambio en el nombre de la columna
                 })
         
         # Convertir la lista de dicts en un DataFrame para mostrar en tabla verticalmente
