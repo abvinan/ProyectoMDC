@@ -135,7 +135,7 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
 # 9. Visualización de gráficos: ventas mensuales, margen de ganancias, frecuencia de compra conjunta
 def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     # Crear la figura y ajustar el tamaño del gráfico
-    fig, ax = plt.subplots(figsize=(4, 3))  # Tamaño más pequeño
+    fig, ax = plt.subplots(figsize=(8, 6))  # Tamaño más pequeño
 
     # Cambiar 'COD_PRODUCTO' por el código correcto
     ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('MES')['Cantidad Vendida'].sum()
