@@ -95,6 +95,7 @@ def generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse
         return {}
 
 # 8. Mostrar recomendaciones en formato tabla con descripción, precio, margen y promedio mensual de unidades vendidas
+# Mostrar las recomendaciones en formato de tabla vertical
 def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas):
     if product_id in als_recommendations:
         recomendaciones = als_recommendations[product_id]
@@ -107,10 +108,10 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
                 precio = producto['VALOR_PVSI'].values[0]
                 costo = producto['COSTO'].values[0]
                 margen = round(((precio - costo) / precio) * 100, 2)
-                
+
                 # Obtener el promedio mensual de ventas del producto recomendado
                 promedio_unidades = df_ventas[df_ventas['Código de Producto'] == rec]['Cantidad Vendida'].mean()
-                
+
                 data.append({
                     'Producto': descripcion, 
                     'Precio': f"${precio:.2f}", 
@@ -118,10 +119,12 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
                     'Promedio Unidades Vendidas': round(promedio_unidades, 2)
                 })
         
+        # Convertir la lista de dicts en un DataFrame para mostrar en tabla verticalmente
         tabla = pd.DataFrame(data)
-        st.write(tabla.T)  # Mostrar horizontalmente
+        st.write(tabla)  # Mostrar verticalmente
     else:
         st.write("No se encontraron recomendaciones para este producto.")
+
 
 # 9. Visualización de gráficos: ventas mensuales, margen de ganancias, frecuencia de compra conjunta
 def graficar_ventas_mensuales(df_ventas, productos_recomendados):
@@ -215,3 +218,8 @@ else:
         # Gráfico de la frecuencia de compra conjunta (mapa de calor)
         st.write("**Mapa de Calor de Frecuencia de Compra Conjunta entre Productos:**")
         graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_id)
+
+# Mostrar los nombres de las columnas del archivo de ventas cargado
+st.write("Columnas del archivo de ventas mensuales:")
+st.write(df_ventas.columns)
+
