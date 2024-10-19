@@ -110,7 +110,7 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
                 margen = round(((precio - costo) / precio) * 100, 2)
 
                 # Obtener el promedio mensual de ventas del producto recomendado
-                promedio_unidades = df_ventas[df_ventas['Código de Producto'] == rec]['Cantidad Vendida'].mean()
+                promedio_unidades = df_ventas[df_ventas['COD_PRODUCTO'] == rec]['Cantidad Vendida'].mean()
 
                 data.append({
                     'Producto': descripcion, 
@@ -202,9 +202,9 @@ else:
         mostrar_recomendaciones_tabla(producto_id, als_recommendations, df, df_ventas)
 
         # Obtener el top 5 de productos más vendidos en la categoría seleccionada
-        st.write("**Artículos más vendidos en la categoría seleccionada:**")
-        df_top_5 = obtener_top_5_ventas_categoria(df_ventas, categoria_seleccionada)
-        st.write(df_top_5[['Descripción del Producto', 'Cantidad Vendida', 'Precio Total']])
+        def obtener_top_5_ventas_categoria(df_ventas, categoria_seleccionada):
+            top_5_productos = df_ventas[df_ventas['Categoria'] == categoria_seleccionada].groupby('COD_PRODUCTO')['Cantidad Vendida'].sum().nlargest(5)
+            return df_ventas[df_ventas['COD_PRODUCTO'].isin(top_5_productos.index)]      
 
         # Visualización de las ventas mensuales por producto recomendado
         productos_recomendados = als_recommendations.get(producto_id, [])
