@@ -96,6 +96,7 @@ def generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse
         return {}
 
 # 8. Mostrar recomendaciones en formato tabla con descripción, precio, margen y promedio mensual de unidades vendidas
+
 def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas):
     if product_id in als_recommendations:
         recomendaciones = als_recommendations[product_id]
@@ -117,23 +118,24 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
                     'Producto': descripcion, 
                     'Precio': f"${precio:.2f}", 
                     'Margen': f"{margen}%", 
-                    'Promedio de unidades vendidas en el mes': promedio_unidades_redondeado
+                    'Promedio de unidades vendidas en el mes': promedio_unidades_redondeado  # Cambio en el nombre de la columna
                 })
         
-        # Convertir la lista de dicts en un DataFrame para mostrar en tabla
+        # Convertir la lista de dicts en un DataFrame para mostrar en tabla verticalmente
         tabla = pd.DataFrame(data)
         
         # Ajustar los índices para que empiecen desde 1
         tabla.index = tabla.index + 1
         
-        # Mostrar la tabla
-        st.table(tabla)
+        # Mostrar la tabla con un tamaño mayor y sin necesidad de scroll
+        st.table(tabla)  # Cambiamos st.dataframe a st.table para que no haya expansión innecesaria y el tamaño se ajuste mejor
     else:
         st.write("No se encontraron recomendaciones para este producto.")
 
 # 9. Visualización de gráficos: ventas mensuales, margen de ganancias, frecuencia de compra conjunta
 def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     fig, ax = plt.subplots()
+    # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
     ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('MES')['Cantidad Vendida'].sum()
     ventas.plot(kind='bar', ax=ax)
     ax.set_title("Ventas Mensuales por Producto Recomendado")
@@ -141,6 +143,7 @@ def graficar_ventas_mensuales(df_ventas, productos_recomendados):
 
 def graficar_margen_ganancias(df_ventas, productos_recomendados):
     fig, ax = plt.subplots()
+    # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
     df_ventas['Margen'] = ((df_ventas['Precio Total'] - df_ventas['Cantidad Vendida']) / df_ventas['Precio Total']) * 100
     margen = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('COD_PRODUCTO')['Margen'].mean()
     margen.plot(kind='bar', ax=ax)
@@ -186,6 +189,8 @@ else:
     producto_id = df_subcategoria[df_subcategoria['DESC_PRODUCTO'] == producto_seleccionado]['COD_PRODUCTO'].values[0]
 
     # Obtener el top 200 productos
+    df_filtrado_top_200 = obtener_top_200_productos
+    # Obtener el top 200 productos
     df_filtrado_top_200 = obtener_top_200_productos(df_categoria)
 
     if df_filtrado_top_200.empty:
@@ -200,32 +205,25 @@ else:
         # Generar las recomendaciones para el top 200 productos
         als_recommendations = generar_recomendaciones_top_200(df_train_compras, als_model, df_train_sparse)
 
-        # **Distribución estilo dashboard**
-        col1, col2 = st.columns([2, 3])
+        # Mostrar las recomendaciones en formato de tabla (productos recomendados horizontalmente)
+        st.write("**Productos recomendados:**")
+        mostrar_recomendaciones_tabla(producto_id, als_recommendations, df, df_ventas)
 
-        # Columna 1: Tabla de productos recomendados y top 5 productos más vendidos
-        with col1:
-            st.write("**Productos recomendados:**")
-            mostrar_recomendaciones_tabla(producto_id, als_recommendations, df, df_ventas)
+        # Obtener el top 5 de productos más vendidos en la categoría seleccionada
+        def obtener_top_5_ventas_categoria(df_ventas, categoria_seleccionada):
+            top_5_productos = df_ventas[df_ventas['Categoria'] == categoria_seleccionada].groupby('COD_PRODUCTO')['Cantidad Vendida'].sum().nlargest(5)
+            return df_ventas[df_ventas['COD_PRODUCTO'].isin(top_5_productos.index)]      
 
-            # Obtener el top 5 de productos más vendidos en la categoría seleccionada
-            def obtener_top_5_ventas_categoria(df_ventas, categoria_seleccionada):
-                top_5_productos = df_ventas[df_ventas['Categoria'] == categoria_seleccionada].groupby('COD_PRODUCTO')['Cantidad Vendida'].sum().nlargest(5)
-                return df_ventas[df_ventas['COD_PRODUCTO'].isin(top_5_productos.index)]      
+        # Visualización de las ventas mensuales por producto recomendado
+        productos_recomendados = als_recommendations.get(producto_id, [])
+        st.write("**Gráfico de Ventas Mensuales por Producto Recomendado:**")
+        graficar_ventas_mensuales(df_ventas, productos_recomendados)
 
-            st.write("**Top 5 productos más vendidos en la categoría seleccionada:**")
-            df_top_5 = obtener_top_5_ventas_categoria(df_ventas, categoria_seleccionada)
-            st.table(df_top_5[['DESC_PRODUCTO', 'Cantidad Vendida']])
+        # Gráfico del margen de ganancias en relación a las ventas de los productos recomendados
+        st.write("**Gráfico del Margen de Ganancia en Relación a las Ventas:**")
+        graficar_margen_ganancias(df_ventas, productos_recomendados)
 
-        # Columna 2: Gráficos
-        with col2:
-            st.write("**Gráfico de Ventas Mensuales por Producto Recomendado:**")
-            graficar_ventas_mensuales(df_ventas, als_recommendations.get(producto_id, []))
-        
-            st.write("**Gráfico del Margen de Ganancia en Relación a las Ventas:**")
-            graficar_margen_ganancias(df_ventas, als_recommendations.get(producto_id, []))
-
-        # Nueva fila para el gráfico de frecuencia de compra conjunta
+        # Gráfico de la frecuencia de compra conjunta (mapa de calor)
         st.write("**Mapa de Calor de Frecuencia de Compra Conjunta entre Productos:**")
-        graficar_frecuencia_compra_conjunta(df, als_recommendations.get(producto_id, []), producto_id)
+        graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_id)
 
