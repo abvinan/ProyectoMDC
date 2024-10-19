@@ -158,16 +158,6 @@ def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     ax.set_ylabel("Unidades Vendidas")  # Cambio solicitado
     st.pyplot(fig)
 
-
-def graficar_margen_ganancias(df_ventas, productos_recomendados):
-    fig, ax = plt.subplots()
-    # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
-    df_ventas['Margen'] = ((df_ventas['Precio Total'] - df_ventas['Cantidad Vendida']) / df_ventas['Precio Total']) * 100
-    margen = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('COD_PRODUCTO')['Margen'].mean()
-    margen.plot(kind='bar', ax=ax)
-    ax.set_title("Margen de Ganancia por Producto")
-    st.pyplot(fig)
-
 def graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_seleccionado):
     matriz_frecuencia = pd.crosstab(df['COD_FACTURA'], df['COD_PRODUCTO']).astype(bool).astype(int)
     productos_conjuntos = productos_recomendados + [producto_seleccionado]
@@ -237,9 +227,6 @@ else:
         st.write("**Gráfico de Ventas Mensuales por Producto Recomendado:**")
         graficar_ventas_mensuales(df_ventas, productos_recomendados)
 
-        # Gráfico del margen de ganancias en relación a las ventas de los productos recomendados
-        st.write("**Gráfico del Margen de Ganancia en Relación a las Ventas:**")
-        graficar_margen_ganancias(df_ventas, productos_recomendados)
 
         # Gráfico de la frecuencia de compra conjunta (mapa de calor)
         st.write("**Mapa de Calor de Frecuencia de Compra Conjunta entre Productos:**")
