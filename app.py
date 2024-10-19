@@ -129,15 +129,17 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
 # 9. Visualización de gráficos: ventas mensuales, margen de ganancias, frecuencia de compra conjunta
 def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     fig, ax = plt.subplots()
-    ventas = df_ventas[df_ventas['Código de Producto'].isin(productos_recomendados)].groupby('Mes')['Cantidad Vendida'].sum()
+    # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
+    ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('MES')['Cantidad Vendida'].sum()
     ventas.plot(kind='bar', ax=ax)
     ax.set_title("Ventas Mensuales por Producto Recomendado")
     st.pyplot(fig)
 
 def graficar_margen_ganancias(df_ventas, productos_recomendados):
     fig, ax = plt.subplots()
+    # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
     df_ventas['Margen'] = ((df_ventas['Precio Total'] - df_ventas['Cantidad Vendida']) / df_ventas['Precio Total']) * 100
-    margen = df_ventas[df_ventas['Código de Producto'].isin(productos_recomendados)].groupby('Código de Producto')['Margen'].mean()
+    margen = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('COD_PRODUCTO')['Margen'].mean()
     margen.plot(kind='bar', ax=ax)
     ax.set_title("Margen de Ganancia por Producto")
     st.pyplot(fig)
