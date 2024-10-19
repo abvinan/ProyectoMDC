@@ -158,11 +158,17 @@ def graficar_ventas_mensuales(df_ventas, productos_recomendados):
     ax.set_ylabel("Unidades Vendidas")  # Cambio solicitado
     st.pyplot(fig)
 
+# Definición de la función
 def graficar_margen_y_ganancia(df_ventas, productos_recomendados):
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
     # Filtrar productos recomendados en df_ventas
     data_recomendada = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)]
+
+    # Verificar que existan productos recomendados
+    if data_recomendada.empty:
+        st.write("No se encontraron productos recomendados para mostrar el gráfico.")
+        return
 
     # Calcular margen y ganancia
     data_recomendada['Margen'] = ((data_recomendada['Precio Total'] - data_recomendada['Costo total']) / data_recomendada['Precio Total']) * 100
@@ -192,9 +198,11 @@ def graficar_margen_y_ganancia(df_ventas, productos_recomendados):
     # Mostrar gráfico en Streamlit
     st.pyplot(fig)
 
-# Llamada a la función
-graficar_margen_y_ganancia(df_ventas, productos_recomendados)
-
+# Llamada a la función, asegurándote de que los parámetros existen
+if productos_recomendados:  # Asegúrate de que la lista no esté vacía
+    graficar_margen_y_ganancia(df_ventas, productos_recomendados)
+else:
+    st.write("No se encontraron productos recomendados para mostrar el gráfico.")
 
 def graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_seleccionado):
     matriz_frecuencia = pd.crosstab(df['COD_FACTURA'], df['COD_PRODUCTO']).astype(bool).astype(int)
