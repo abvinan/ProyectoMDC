@@ -165,24 +165,24 @@ def graficar_margen_ganancias(df_ventas, productos_recomendados, df):
     # Cambiar 'COD_PRODUCTO' por los nombres de los productos
     margen_data = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('COD_PRODUCTO').mean()
     margen_data['Margen'] = ((margen_data['Precio Total'] - margen_data['Cantidad Vendida']) / margen_data['Precio Total']) * 100
-
+    
     # Obtener los nombres de los productos recomendados
     nombres_productos = df[df['COD_PRODUCTO'].isin(productos_recomendados)]['DESC_PRODUCTO'].values
-
+    
     # Crear el gráfico de barras con los márgenes y los nombres de productos
     ax.bar(nombres_productos, margen_data['Margen'], color='skyblue')
-
+    
     # Añadir etiquetas de valor a las barras
     for i, v in enumerate(margen_data['Margen']):
         ax.text(i, v + (2 if v > 0 else -2), f'{v:.2f}%', ha='center', color='black')
-
+    
     ax.set_title("Margen de Ganancia por Producto")
     ax.set_xlabel("Producto")
     ax.set_ylabel("Margen (%)")
-
     plt.xticks(rotation=45, ha='right')  # Rotar los nombres para que sean legibles
     plt.tight_layout()  # Ajustar para que los elementos no se solapen
     st.pyplot(fig)
+
 
 def graficar_frecuencia_compra_conjunta(df, productos_recomendados, producto_seleccionado):
     matriz_frecuencia = pd.crosstab(df['COD_FACTURA'], df['COD_PRODUCTO']).astype(bool).astype(int)
