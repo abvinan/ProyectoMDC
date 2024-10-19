@@ -134,12 +134,30 @@ def mostrar_recomendaciones_tabla(product_id, als_recommendations, df, df_ventas
 
 # 9. Visualización de gráficos: ventas mensuales, margen de ganancias, frecuencia de compra conjunta
 def graficar_ventas_mensuales(df_ventas, productos_recomendados):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(6, 4))  # Tamaño reducido del gráfico
     # Cambiar 'Código de Producto' por 'COD_PRODUCTO'
-    ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby('MES')['Cantidad Vendida'].sum()
-    ventas.plot(kind='bar', ax=ax)
+    ventas = df_ventas[df_ventas['COD_PRODUCTO'].isin(productos_recomendados)].groupby(['MES', 'COD_PRODUCTO'])['Cantidad Vendida'].sum().unstack()
+    
+    # Mapeo de meses a abreviaturas en español
+    meses_espanol = {1: 'Ene', 2: 'Feb', 3: 'Mar', 4: 'Abr', 5: 'May', 6: 'Jun', 7: 'Jul', 8: 'Ago', 9: 'Sep', 10: 'Oct', 11: 'Nov', 12: 'Dic'}
+    
+    # Asignar las abreviaciones a los ejes
+    ventas.index = ventas.index.map(meses_espanol)
+    
+    # Crear gráfico apilado de ventas mensuales con colores en escala de naranja
+    colores_naranja = ['#FFCC99', '#FF9966', '#FF6600', '#CC3300', '#993300']  # Colores en diferentes tonos de naranja
+    ventas.plot(kind='bar', stacked=True, ax=ax, color=colores_naranja)
+    
+    # Cambiar el recuadro de leyenda para mostrar los números en vez de los códigos de productos
+    handles, labels = ax.get_legend_handles_labels()
+    labels = ['Producto {}'.format(i+1) for i in range(len(labels))]  # Cambiar los códigos por números de producto
+    ax.legend(handles, labels, title='Productos Recomendados')
+    
     ax.set_title("Ventas Mensuales por Producto Recomendado")
+    ax.set_xlabel("MES")
+    ax.set_ylabel("Unidades Vendidas")  # Cambio solicitado
     st.pyplot(fig)
+
 
 def graficar_margen_ganancias(df_ventas, productos_recomendados):
     fig, ax = plt.subplots()
