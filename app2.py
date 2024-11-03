@@ -11,14 +11,20 @@ def cargar_datos():
     url = 'https://drive.google.com/uc?id=1NmAZBoSj8YqWFbypAm8HYMj2YHbRyggT'
     output = 'datos.csv'
     gdown.download(url, output, quiet=False)
-    return pd.read_csv(output)
+    df = pd.read_csv(output)
+    st.write("Datos cargados desde 'datos.csv':")
+    st.write(df.head())  # Mostrar las primeras filas para verificar la estructura
+    return df
 
 @st.cache_data
 def cargar_ventas_mensuales():
     url = 'https://drive.google.com/uc?id=1-21lc0LEqQLeph9YmnqIv5dhnDMzV15q'
     output = 'ventas_mensuales.csv'
     gdown.download(url, output, quiet=False)
-    return pd.read_csv(output)
+    df_ventas = pd.read_csv(output)
+    st.write("Datos cargados desde 'ventas_mensuales.csv':")
+    st.write(df_ventas.head())  # Mostrar las primeras filas para verificar la estructura
+    return df_ventas
 
 # Cargar datos
 df = cargar_datos()
@@ -62,11 +68,13 @@ st.session_state.productos_seleccionados = productos_seleccionados
 # Mostrar selección actual para verificar
 st.write("Productos seleccionados:", st.session_state.productos_seleccionados)
 
-from scipy.sparse import csr_matrix
-from implicit.als import AlternatingLeastSquares
-
 # Función para preparar la matriz dispersa y entrenar el modelo ALS
 def entrenar_modelo_als(df):
+    # Verificar si las columnas existen
+    if not {'COD_FACTURA', 'COD_PRODUCTO', 'CANTIDAD'}.issubset(df.columns):
+        st.error("Las columnas necesarias no están en el DataFrame. Verifique que 'COD_FACTURA', 'COD_PRODUCTO' y 'CANTIDAD' existan en 'datos.csv'.")
+        return None, None
+    
     # Crear matriz dispersa con facturas en las filas y productos en las columnas
     user_item_matrix = df.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='CANTIDAD').fillna(0)
     sparse_matrix = csr_matrix(user_item_matrix.values)
@@ -85,39 +93,44 @@ def entrenar_modelo_als(df):
     # Devolver el modelo y la matriz para su uso posterior
     return modelo, user_item_matrix
 
+# Entrenar el modelo ALS
+modelo, user_item_matrix = entrenar_modelo_als(df)
 
-# Función para generar recomendaciones basadas en el modelo ALS
-def generar_recomendaciones(modelo, user_item_matrix, producto_id, N=5):
-    try:
-        # Obtener el índice del producto en la matriz
-        producto_idx = user_item_matrix.columns.get_loc(producto_id)
-        st.write(f"Índice del producto {producto_id}: {producto_idx}")
-        
-        # Generar recomendaciones
-        recomendaciones = modelo.recommend(producto_idx, user_item_matrix.values.T, N=N, filter_already_liked_items=False)
-        
-        # Mostrar recomendaciones generadas para depuración
-        st.write("Recomendaciones generadas:", recomendaciones)
-        
-        # Devolver los códigos de producto recomendados
-        return [user_item_matrix.columns[i] for i, _ in recomendaciones]
-    except KeyError:
-        st.error(f"El producto con ID {producto_id} no se encontró en el modelo.")
-        return []
-    except Exception as e:
-        st.error(f"Error en la función de recomendaciones: {e}")
-        return []
+# Verificar que el modelo y la matriz se hayan creado correctamente
+if modelo is not None and user_item_matrix is not None:
+    # Función para generar recomendaciones basadas en el modelo ALS
+    def generar_recomendaciones(modelo, user_item_matrix, producto_id, N=5):
+        try:
+            # Obtener el índice del producto en la matriz
+            producto_idx = user_item_matrix.columns.get_loc(producto_id)
+            st.write(f"Índice del producto {producto_id}: {producto_idx}")
+            
+            # Generar recomendaciones
+            recomendaciones = modelo.recommend(producto_idx, user_item_matrix.values.T, N=N, filter_already_liked_items=False)
+            
+            # Mostrar recomendaciones generadas para depuración
+            st.write("Recomendaciones generadas:", recomendaciones)
+            
+            # Devolver los códigos de producto recomendados
+            return [user_item_matrix.columns[i] for i, _ in recomendaciones]
+        except KeyError:
+            st.error(f"El producto con ID {producto_id} no se encontró en el modelo.")
+            return []
+        except Exception as e:
+            st.error(f"Error en la función de recomendaciones: {e}")
+            return []
 
-# Generar recomendaciones para los productos seleccionados por el usuario
-st.write("Recomendaciones de productos:")
-for producto in st.session_state.productos_seleccionados:
-    # Obtener el código de producto (COD_PRODUCTO) correspondiente al nombre del producto seleccionado
-    producto_id = df[df['DESC_PRODUCTO'] == producto]['COD_PRODUCTO'].values[0]
-    
-    # Generar recomendaciones usando el modelo
-    recomendaciones = generar_recomendaciones(modelo, user_item_matrix, producto_id)
-    
-    # Mostrar recomendaciones para cada producto seleccionado
-    st.write(f"Para el producto '{producto}' (ID: {producto_id}), se recomiendan:")
-    st.write(recomendaciones)
-
+    # Generar recomendaciones para los productos seleccionados por el usuario
+    st.write("Recomendaciones de productos:")
+    for producto in st.session_state.productos_seleccionados:
+        # Obtener el código de producto (COD_PRODUCTO) correspondiente al nombre del producto seleccionado
+        producto_id = df[df['DESC_PRODUCTO'] == producto]['COD_PRODUCTO'].values[0]
+        
+        # Generar recomendaciones usando el modelo
+        recomendaciones = generar_recomendaciones(modelo, user_item_matrix, producto_id)
+        
+        # Mostrar recomendaciones para cada producto seleccionado
+        st.write(f"Para el producto '{producto}' (ID: {producto_id}), se recomiendan:")
+        st.write(recomendaciones)
+else:
+    st.write("No se pudo entrenar el modelo ALS debido a problemas en la estructura de datos.")
