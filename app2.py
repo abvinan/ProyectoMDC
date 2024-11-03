@@ -181,9 +181,44 @@ elif menu_seleccion == "Recomendaciones":
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
 
-    # Verificamos que 'combos_seleccionados' esté definido y no esté vacío
-    if 'combos_seleccionados' in st.session_state and not st.session_state['combos_seleccionados'].empty:
-        # Mostrar el resumen de combos seleccionados
-        st.table(st.session_state['combos_seleccionados'][['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
+    # Verificar si hay combos seleccionados
+    if 'indices_combos_seleccionados' in st.session_state and st.session_state.indices_combos_seleccionados:
+        indices_seleccionados = st.session_state.indices_combos_seleccionados
+
+        # Filtrar los combos seleccionados en `df_combos` usando los índices seleccionados
+        combos_seleccionados = df_combos.loc[indices_seleccionados]
+
+        # Crear un DataFrame para almacenar el resumen final
+        resumen_combos = []
+
+        # Iterar sobre los combos seleccionados
+        for _, combo in combos_seleccionados.iterrows():
+            producto_a_id = df[df['DESC_PRODUCTO'] == combo['Producto A']]['COD_PRODUCTO'].values[0]
+            producto_b_id = df[df['DESC_PRODUCTO'] == combo['Producto B']]['COD_PRODUCTO'].values[0]
+
+            # Filtrar `df_ventas` para obtener los datos de venta mensual promedio de los productos del combo
+            venta_a = df_ventas[df_ventas['COD_PRODUCTO'] == producto_a_id]
+            venta_b = df_ventas[df_ventas['COD_PRODUCTO'] == producto_b_id]
+
+            if not venta_a.empty and not venta_b.empty:
+                # Calcular las métricas
+                cantidad_venta_estimada = int(np.ceil(venta_a['Cantidad Vendida'].mean() + venta_b['Cantidad Vendida'].mean()))
+                venta_estimada = round(venta_a['Precio Total'].mean() + venta_b['Precio Total'].mean(), 2)
+                ganancia_estimada = round(venta_estimada - (venta_a['Costo total'].mean() + venta_b['Costo total'].mean()), 2)
+
+                # Agregar al resumen
+                resumen_combos.append({
+                    'Combo': f"{combo['Producto A']} + {combo['Producto B']}",
+                    'Producto A': combo['Producto A'],
+                    'Producto B': combo['Producto B'],
+                    'Cantidad estimada de venta': cantidad_venta_estimada,
+                    'Venta estimada ($)': f"${venta_estimada}",
+                    'Ganancia estimada ($)': f"${ganancia_estimada}"
+                })
+
+        # Convertir `resumen_combos` a DataFrame y mostrarlo
+        df_resumen_combos = pd.DataFrame(resumen_combos)
+        st.table(df_resumen_combos)
+
     else:
-        st.write("No se han seleccionado combos.")
+        st.write("No se han seleccionado combos para mostrar el resumen.")
