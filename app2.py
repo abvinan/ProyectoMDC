@@ -12,6 +12,7 @@ def cargar_datos():
     output = 'datos.csv'
     gdown.download(url, output, quiet=False)
     df = pd.read_csv(output)
+    return df  # Asegurarse de devolver el DataFrame
 
 @st.cache_data
 def cargar_ventas_mensuales():
@@ -19,6 +20,7 @@ def cargar_ventas_mensuales():
     output = 'ventas_mensuales.csv'
     gdown.download(url, output, quiet=False)
     df_ventas = pd.read_csv(output)
+    return df_ventas  # Asegurarse de devolver el DataFrame
 
 # Cargar datos
 df = cargar_datos()
