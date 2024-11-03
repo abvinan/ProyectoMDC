@@ -51,7 +51,6 @@ def preparar_datos_para_entrenar(df):
     if len(df) > 0:
         df_train, df_test = train_test_split(df, test_size=0.3, random_state=42)
         df_train_compras = df_train.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
-        df_test_compras = df_test.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
         return df_train_compras, df_test_compras
     else:
         st.error("No hay suficientes datos para dividir en entrenamiento y prueba.")
@@ -139,15 +138,14 @@ elif menu_seleccion == "Recomendaciones":
         df_top_200 = obtener_top_200_productos(df_categoria)
 
         # Preparar los datos y entrenar el modelo ALS
-        df_train_compras, df_test_compras = preparar_datos_para_entrenar(df_top_200)
+        df_train_compras, _ = preparar_datos_para_entrenar(df_top_200)
         modelo_als, df_train_sparse = entrenar_modelo_als(df_train_compras)
 
         # Generar las recomendaciones para los productos seleccionados
         recomendaciones = generar_recomendaciones_seleccionados(df_train_compras, modelo_als, df_train_sparse, productos_seleccionados_ids)
 
-        # Mostrar las recomendaciones en una tabla con checkboxes para seleccionar combos
+        # Mostrar las recomendaciones en una tabla
         combos = []
-        checkboxes = []
         for producto_id in productos_seleccionados_ids:
             descripcion_a = df[df['COD_PRODUCTO'] == producto_id]['DESC_PRODUCTO'].values[0]
             for recomendacion_id in recomendaciones.get(producto_id, []):
@@ -160,38 +158,32 @@ elif menu_seleccion == "Recomendaciones":
                 precio_combo = precio_a + precio_b
                 margen_combo = round(((precio_combo - (costo_a + costo_b)) / precio_combo) * 100, 2)
 
-                checkbox_key = f"combo_{producto_id}_{recomendacion_id}"
-                selected = st.checkbox(f"{descripcion_a} + {descripcion_b}", key=checkbox_key)
-
                 combos.append({
+                    'Indice': len(combos),  # Agregar un índice para cada combo
                     'Producto A': descripcion_a,
                     'Producto B': descripcion_b,
                     'Precio Combo': f"${precio_combo:.2f}",
-                    'Margen Combo': f"{margen_combo}%",
-                    'Seleccionado': selected
+                    'Margen Combo': f"{margen_combo}%"
                 })
 
         # Convertir la lista de combos en un DataFrame y mostrarla
         df_combos = pd.DataFrame(combos)
+        st.table(df_combos[['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
 
-        # Filtrar los combos seleccionados y guardar en sesión
-        if 'combos_seleccionados' not in st.session_state:
-            st.session_state['combos_seleccionados'] = pd.DataFrame()
-        st.session_state.combos_seleccionados = df_combos[df_combos['Seleccionado']]
+        # Menú para seleccionar los índices de los combos
+        indices_seleccionados = st.multiselect("Seleccione los índices de los combos que desea incluir en el resumen:", df_combos['Indice'].tolist())
         
-        # Mostrar combos en una tabla
-        st.table(df_combos[['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo', 'Seleccionado']])
-        
-    else:
-        st.write("No se han seleccionado productos en la ventana anterior.")
+        # Guardar los combos seleccionados
+        st.session_state['combos_seleccionados'] = df_combos[df_combos['Indice'].isin(indices_seleccionados)]
 
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
 
     # Verificamos que 'combos_seleccionados' esté definido y no esté vacío
-    if 'combos_seleccionados' in st.session_state and not st.session_state.combos_seleccionados.empty:
+    if 'combos_seleccionados' in st.session_state and not st.session_state['combos_seleccionados'].empty:
         # Mostrar el resumen de combos seleccionados
-        st.table(st.session_state.combos_seleccionados[['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
+        st.table(st.session_state['combos_seleccionados'][['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
     else:
         st.write("No se han seleccionado combos.")
+
