@@ -39,93 +39,54 @@ def filtrar_por_categoria(df, categoria_seleccionada):
     seccion = secciones.get(categoria_seleccionada)
     return df[df['SECCION'] == seccion]
     
+# Obtener el top 200 productos más vendidos de la categoría seleccionada
+def obtener_top_200_productos(df_categoria):
+    if df_categoria.empty:
+        return pd.DataFrame()
+    else:
+        top_200_productos = df_categoria.groupby('COD_PRODUCTO')['CANTIDAD'].sum().nlargest(200).index
+        return df_categoria[df_categoria['COD_PRODUCTO'].isin(top_200_productos)]
 
-# Función para preparar la matriz dispersa y entrenar el modelo ALS
-def entrenar_modelo_als(df):
-    # Crear matriz dispersa con facturas en las filas y productos en las columnas
-    user_item_matrix = df.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='CANTIDAD').fillna(0)
-    sparse_matrix = csr_matrix(user_item_matrix.values)
+from sklearn.model_selection import train_test_split
 
-    # Entrenar el modelo ALS
-    modelo = AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
-    modelo.fit(sparse_matrix)
+def preparar_datos_para_entrenar(df):
+    if len(df) > 0:
+        df_train, df_test = train_test_split(df, test_size=0.3, random_state=42)
+        df_train_compras = df_train.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
+        df_test_compras = df_test.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
+        return df_train_compras, df_test_compras
+    else:
+        st.error("No hay suficientes datos para dividir en entrenamiento y prueba.")
+        return None, None
 
-    # Devolver el modelo y la matriz para su uso posterior
-    return modelo, user_item_matrix
+from implicit.als import AlternatingLeastSquares
 
-# Función para generar recomendaciones basadas en el modelo ALS
-def generar_recomendaciones(modelo, user_item_matrix, producto_id, N=5):
-    try:
-        # Obtener el índice del producto en la matriz
-        producto_idx = user_item_matrix.columns.get_loc(producto_id)
-        
-        # Generar recomendaciones
-        recomendaciones = modelo.recommend(producto_idx, user_item_matrix.values.T, N=N, filter_already_liked_items=False)
-        
-        # Devolver los códigos de producto recomendados
-        return [user_item_matrix.columns[i] for i, _ in recomendaciones]
-    except KeyError:
-        st.error(f"El producto con ID {producto_id} no se encontró en el modelo.")
-        return []
-    except Exception as e:
-        st.error(f"Error en la función de recomendaciones: {e}")
-        return []
+def entrenar_modelo_als(df_train_compras):
+    if df_train_compras is not None:
+        df_train_sparse = csr_matrix(df_train_compras.values)
+        als_model = AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
+        als_model.fit(df_train_sparse)
+        return als_model, df_train_sparse
+    else:
+        return None, None
 
-# Función para calcular margen y precio de los combos
-def calcular_combos(df, productos_seleccionados, als_recommendations):
-    combos = []
-    for producto_a in productos_seleccionados:
-        for producto_b in als_recommendations.get(producto_a, []):
-            prod_a_data = df[df['COD_PRODUCTO'] == producto_a]
-            prod_b_data = df[df['COD_PRODUCTO'] == producto_b]
-            
-            if not prod_a_data.empty and not prod_b_data.empty:
-                descripcion_a = prod_a_data['DESC_PRODUCTO'].values[0]
-                descripcion_b = prod_b_data['DESC_PRODUCTO'].values[0]
-                precio_a = prod_a_data['VALOR_PVSI'].values[0]
-                costo_a = prod_a_data['COSTO'].values[0]
-                precio_b = prod_b_data['VALOR_PVSI'].values[0]
-                costo_b = prod_b_data['COSTO'].values[0]
-                
-                precio_combo = precio_a + precio_b
-                margen_combo = round(((precio_combo - (costo_a + costo_b)) / precio_combo) * 100, 2)
-                
-                combos.append({
-                    'Producto A': descripcion_a,
-                    'Producto B': descripcion_b,
-                    'Precio Combo': precio_combo,
-                    'Margen Combo': f"{margen_combo}%",
-                    'Check': False
-                })
-    return pd.DataFrame(combos)
+def generar_recomendaciones_seleccionados(df_train_compras, als_model, df_train_sparse, productos_seleccionados_ids):
+    if df_train_compras is not None and als_model is not None:
+        als_recommendations = {}
+        for product_id in productos_seleccionados_ids:
+            try:
+                product_idx = df_train_compras.columns.get_loc(product_id)
+                recommended_products = als_model.recommend(product_idx, df_train_sparse.T, N=6, filter_already_liked_items=False)
+                recommended_products_list = [df_train_compras.columns[i] for i, _ in zip(recommended_products[0], recommended_products[1]) if df_train_compras.columns[i] != product_id]
+                als_recommendations[product_id] = recommended_products_list[:5]
+            except KeyError:
+                st.warning(f"El producto con ID {product_id} no se encontró en el modelo.")
+        return als_recommendations
+    else:
+        st.error("No se pudieron generar recomendaciones debido a la falta de datos o error en el entrenamiento.")
+        return {}
 
-# Función para calcular las métricas de la tercera ventana
-def calcular_resumen_combos(df_ventas, combos_seleccionados):
-    resumen = []
-    for _, combo in combos_seleccionados.iterrows():
-        prod_a_data = df_ventas[df_ventas['DESC_PRODUCTO'] == combo['Producto A']]
-        prod_b_data = df_ventas[df_ventas['DESC_PRODUCTO'] == combo['Producto B']]
-        
-        if not prod_a_data.empty and not prod_b_data.empty:
-            cantidad_a = prod_a_data['Cantidad Vendida'].mean()
-            cantidad_b = prod_b_data['Cantidad Vendida'].mean()
-            precio_total_a = prod_a_data['Precio Total'].mean()
-            precio_total_b = prod_b_data['Precio Total'].mean()
-            costo_total_a = prod_a_data['Costo total'].mean()
-            costo_total_b = prod_b_data['Costo total'].mean()
-            
-            cantidad_venta_estimada = int(np.ceil(cantidad_a + cantidad_b))
-            venta_estimada = round(precio_total_a + precio_total_b, 2)
-            ganancia_estimada = round((venta_estimada - (costo_total_a + costo_total_b)), 2)
-            
-            resumen.append({
-                'Producto A': combo['Producto A'],
-                'Producto B': combo['Producto B'],
-                'Cantidad estimada de venta': cantidad_venta_estimada,
-                'Venta estimada ($)': f"${venta_estimada}",
-                'Ganancia estimada ($)': f"${ganancia_estimada}"
-            })
-    return pd.DataFrame(resumen)
+
 
 # Configuración de la aplicación Streamlit
 menu_seleccion = st.sidebar.radio("Seleccione una ventana:", ["Seleccionar Productos", "Recomendaciones", "Resumen de Combos Seleccionados"])
@@ -164,27 +125,53 @@ else:
     st.write("No se han seleccionado productos.")
 
 # Ventana 2: Mostrar Combos Recomendados
-if menu_seleccion == "Recomendaciones":
+elif menu_seleccion == "Recomendaciones":
     st.header("Combos Recomendados")
 
-    if st.session_state.get('productos_seleccionados'):
-        # Entrenar el modelo ALS y generar recomendaciones
-        modelo, user_item_matrix = entrenar_modelo_als(df)
-        als_recommendations = {producto: generar_recomendaciones(modelo, user_item_matrix, producto) for producto in st.session_state.productos_seleccionados}
+    # Verificar que haya productos seleccionados en la primera ventana
+    if 'productos_seleccionados' in st.session_state and st.session_state.productos_seleccionados:
+        # Obtener los IDs de los productos seleccionados
+        productos_seleccionados_ids = [
+            df[df['DESC_PRODUCTO'] == nombre]['COD_PRODUCTO'].values[0]
+            for nombre in st.session_state.productos_seleccionados
+        ]
         
-        # Crear el dataframe de combos
-        df_combos = calcular_combos(df, st.session_state.productos_seleccionados, als_recommendations)
+        # Obtener el top 200 productos de la categoría seleccionada para entrenar el modelo
+        df_top_200 = obtener_top_200_productos(df_categoria)
         
-        # Mostrar tabla de combos con opción de selección (checkbox)
-        st.write("Seleccione los combos que desea incluir en el resumen:")
-        
-        # Agregamos una columna de checkboxes en la tabla de recomendaciones
-        df_combos['Seleccionado'] = df_combos.apply(lambda x: st.checkbox(f"Combo {x.name+1}", key=f"combo_{x.name}"), axis=1)
-        
-        # Guardar los combos seleccionados en st.session_state
-        if 'combos_seleccionados' not in st.session_state:
-            st.session_state.combos_seleccionados = pd.DataFrame()
-        st.session_state.combos_seleccionados = df_combos[df_combos['Seleccionado']]
+        # Preparar los datos y entrenar el modelo ALS
+        df_train_compras, df_test_compras = preparar_datos_para_entrenar(df_top_200)
+        modelo_als, df_train_sparse = entrenar_modelo_als(df_train_compras)
+
+        # Generar las recomendaciones para los productos seleccionados
+        recomendaciones = generar_recomendaciones_seleccionados(df_train_compras, modelo_als, df_train_sparse, productos_seleccionados_ids)
+
+        # Mostrar las recomendaciones en una tabla
+        combos = []
+        for producto_id in productos_seleccionados_ids:
+            descripcion_a = df[df['COD_PRODUCTO'] == producto_id]['DESC_PRODUCTO'].values[0]
+            for recomendacion_id in recomendaciones.get(producto_id, []):
+                descripcion_b = df[df['COD_PRODUCTO'] == recomendacion_id]['DESC_PRODUCTO'].values[0]
+                precio_a = df[df['COD_PRODUCTO'] == producto_id]['VALOR_PVSI'].values[0]
+                precio_b = df[df['COD_PRODUCTO'] == recomendacion_id]['VALOR_PVSI'].values[0]
+                costo_a = df[df['COD_PRODUCTO'] == producto_id]['COSTO'].values[0]
+                costo_b = df[df['COD_PRODUCTO'] == recomendacion_id]['COSTO'].values[0]
+
+                precio_combo = precio_a + precio_b
+                margen_combo = round(((precio_combo - (costo_a + costo_b)) / precio_combo) * 100, 2)
+
+                combos.append({
+                    'Producto A': descripcion_a,
+                    'Producto B': descripcion_b,
+                    'Precio Combo': f"${precio_combo:.2f}",
+                    'Margen Combo': f"{margen_combo}%"
+                })
+
+        # Convertir la lista de combos en un DataFrame y mostrarla
+        df_combos = pd.DataFrame(combos)
+        st.table(df_combos)
+    else:
+        st.write("No se han seleccionado productos en la ventana anterior.")
 
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
