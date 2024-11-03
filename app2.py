@@ -108,13 +108,26 @@ if menu_seleccion == "Seleccionar Productos":
 elif menu_seleccion == "Recomendaciones":
     st.header("Combos Recomendados")
 
+    # Verificar que haya productos seleccionados en la primera ventana
     if 'productos_seleccionados' in st.session_state and st.session_state.productos_seleccionados:
-        productos_seleccionados_ids = [df[df['DESC_PRODUCTO'] == nombre]['COD_PRODUCTO'].values[0] for nombre in st.session_state.productos_seleccionados]
+        # Obtener los IDs de los productos seleccionados
+        productos_seleccionados_ids = [
+            df[df['DESC_PRODUCTO'] == nombre]['COD_PRODUCTO'].values[0]
+            for nombre in st.session_state.productos_seleccionados
+        ]
+        
+        # Obtener el top 200 productos de la categoría seleccionada para entrenar el modelo
+        df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
         df_top_200 = obtener_top_200_productos(df_categoria)
+        
+        # Preparar los datos y entrenar el modelo ALS
         df_train_compras = preparar_datos_para_entrenar(df_top_200)
         modelo_als, df_train_sparse = entrenar_modelo_als(df_train_compras)
+
+        # Generar las recomendaciones para los productos seleccionados
         recomendaciones = generar_recomendaciones_seleccionados(df_train_compras, modelo_als, df_train_sparse, productos_seleccionados_ids)
 
+        # Mostrar las recomendaciones en una tabla
         combos = []
         for producto_id in productos_seleccionados_ids:
             descripcion_a = df[df['COD_PRODUCTO'] == producto_id]['DESC_PRODUCTO'].values[0]
@@ -124,8 +137,10 @@ elif menu_seleccion == "Recomendaciones":
                 precio_b = df[df['COD_PRODUCTO'] == recomendacion_id]['VALOR_PVSI'].values[0]
                 costo_a = df[df['COD_PRODUCTO'] == producto_id]['COSTO'].values[0]
                 costo_b = df[df['COD_PRODUCTO'] == recomendacion_id]['COSTO'].values[0]
+
                 precio_combo = precio_a + precio_b
                 margen_combo = round(((precio_combo - (costo_a + costo_b)) / precio_combo) * 100, 2)
+
                 combos.append({
                     'Producto A': descripcion_a,
                     'Producto B': descripcion_b,
@@ -137,11 +152,14 @@ elif menu_seleccion == "Recomendaciones":
         df_combos = pd.DataFrame(combos)
         st.table(df_combos)
 
+        # Guardar los combos seleccionados en el session_state
         st.session_state.combos_seleccionados = df_combos[df_combos['Seleccionado']]
 
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
+
+    # Verificar que haya combos seleccionados
     if 'combos_seleccionados' in st.session_state and not st.session_state.combos_seleccionados.empty:
         st.table(st.session_state.combos_seleccionados[['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
     else:
