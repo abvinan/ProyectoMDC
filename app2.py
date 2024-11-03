@@ -61,14 +61,16 @@ if 'productos_seleccionados' not in st.session_state:
     st.session_state.productos_seleccionados = []
 st.session_state.productos_seleccionados = productos_seleccionados
 
-# Crear una tabla para mostrar los productos seleccionados
+# Crear una tabla para mostrar los productos seleccionados sin el índice
 if st.session_state.productos_seleccionados:
     productos_seleccionados_df = pd.DataFrame({
         "Productos seleccionados": st.session_state.productos_seleccionados
     })
+    productos_seleccionados_df.index = [""] * len(productos_seleccionados_df)  # Eliminar el índice
     st.table(productos_seleccionados_df)
 else:
     st.write("No se han seleccionado productos.")
+
 
 # Importamos librerías adicionales para la segunda y tercera ventana
 from scipy.sparse import csr_matrix
