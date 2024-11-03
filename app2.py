@@ -38,10 +38,7 @@ secciones = {
 def filtrar_por_categoria(df, categoria_seleccionada):
     seccion = secciones.get(categoria_seleccionada)
     return df[df['SECCION'] == seccion]
-
-# Importamos librerías adicionales para la segunda y tercera ventana
-from scipy.sparse import csr_matrix
-from implicit.als import AlternatingLeastSquares
+    
 
 # Función para preparar la matriz dispersa y entrenar el modelo ALS
 def entrenar_modelo_als(df):
