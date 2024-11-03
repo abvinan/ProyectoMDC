@@ -46,6 +46,7 @@ def obtener_top_200_productos(df_categoria):
         top_200_productos = df_categoria.groupby('COD_PRODUCTO')['CANTIDAD'].sum().nlargest(200).index
         return df_categoria[df_categoria['COD_PRODUCTO'].isin(top_200_productos)]
 
+# Preparar datos para entrenar el modelo ALS
 def preparar_datos_para_entrenar(df):
     if len(df) > 0:
         df_train, df_test = train_test_split(df, test_size=0.3, random_state=42)
@@ -55,6 +56,7 @@ def preparar_datos_para_entrenar(df):
         st.error("No hay suficientes datos para dividir en entrenamiento y prueba.")
         return None
 
+# Entrenar el modelo ALS
 def entrenar_modelo_als(df_train_compras):
     if df_train_compras is not None:
         df_train_sparse = csr_matrix(df_train_compras.values)
@@ -64,6 +66,7 @@ def entrenar_modelo_als(df_train_compras):
     else:
         return None, None
 
+# Generar recomendaciones para los productos seleccionados
 def generar_recomendaciones_seleccionados(df_train_compras, als_model, df_train_sparse, productos_seleccionados_ids):
     if df_train_compras is not None and als_model is not None:
         als_recommendations = {}
@@ -86,40 +89,54 @@ menu_seleccion = st.sidebar.radio("Seleccione una ventana:", ["Seleccionar Produ
 # Ventana 1: Selección de Productos
 if menu_seleccion == "Seleccionar Productos":
     st.header("Selecciona los Productos para Recomendación")
+
+    # Selección de categoría basada en el diccionario de secciones
     categoria_seleccionada = st.selectbox("Seleccione una Categoría", list(secciones.keys()))
+
+    # Filtrar el DataFrame para obtener solo los datos de la categoría seleccionada
     df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
+
+    # Guardar df_categoria en el estado de la sesión
+    st.session_state['df_categoria'] = df_categoria
+
+    # Filtrar subcategorías según la categoría seleccionada
     subcategorias_disponibles = df_categoria['DESC_CLASE'].unique()
     subcategoria_seleccionada = st.selectbox("Seleccione una Subcategoría", subcategorias_disponibles)
+
+    # Filtrar productos según la subcategoría seleccionada
     productos_disponibles = df_categoria[df_categoria['DESC_CLASE'] == subcategoria_seleccionada]['DESC_PRODUCTO'].unique()
     productos_seleccionados = st.multiselect("Seleccione hasta 4 productos:", productos_disponibles, max_selections=4)
 
-    if 'productos_seleccionados' not in st.session_state:
-        st.session_state.productos_seleccionados = []
+    # Guardar la selección en el estado de sesión
     st.session_state.productos_seleccionados = productos_seleccionados
 
+    # Crear una tabla para mostrar los productos seleccionados sin el índice
     if st.session_state.productos_seleccionados:
         productos_seleccionados_df = pd.DataFrame({
             "Productos seleccionados": st.session_state.productos_seleccionados
         })
-        productos_seleccionados_df.index = [""] * len(productos_seleccionados_df)
+        productos_seleccionados_df.index = [""] * len(productos_seleccionados_df)  # Eliminar el índice
         st.table(productos_seleccionados_df)
+    else:
+        st.write("No se han seleccionado productos.")
 
 # Ventana 2: Mostrar Combos Recomendados
 elif menu_seleccion == "Recomendaciones":
     st.header("Combos Recomendados")
 
-    # Verificar que haya productos seleccionados en la primera ventana
-    if 'productos_seleccionados' in st.session_state and st.session_state.productos_seleccionados:
+    # Verificar que haya productos seleccionados y `df_categoria` esté definido en la sesión
+    if 'productos_seleccionados' in st.session_state and st.session_state.productos_seleccionados and 'df_categoria' in st.session_state:
+        df_categoria = st.session_state['df_categoria']
+
         # Obtener los IDs de los productos seleccionados
         productos_seleccionados_ids = [
             df[df['DESC_PRODUCTO'] == nombre]['COD_PRODUCTO'].values[0]
             for nombre in st.session_state.productos_seleccionados
         ]
-        
+
         # Obtener el top 200 productos de la categoría seleccionada para entrenar el modelo
-        df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
         df_top_200 = obtener_top_200_productos(df_categoria)
-        
+
         # Preparar los datos y entrenar el modelo ALS
         df_train_compras = preparar_datos_para_entrenar(df_top_200)
         modelo_als, df_train_sparse = entrenar_modelo_als(df_train_compras)
@@ -149,18 +166,25 @@ elif menu_seleccion == "Recomendaciones":
                     'Seleccionado': st.checkbox(f"Seleccionar {descripcion_a} - {descripcion_b}", key=f"{producto_id}_{recomendacion_id}")
                 })
 
+        # Convertir la lista de combos en un DataFrame y mostrarla
         df_combos = pd.DataFrame(combos)
-        st.table(df_combos)
-
-        # Guardar los combos seleccionados en el session_state
+        
+        # Guardar solo los combos seleccionados en el session_state
+        if 'combos_seleccionados' not in st.session_state:
+            st.session_state.combos_seleccionados = pd.DataFrame()
         st.session_state.combos_seleccionados = df_combos[df_combos['Seleccionado']]
+
+        # Mostrar la tabla sin la columna de selección
+        st.table(df_combos.drop(columns=['Seleccionado']))
+    else:
+        st.write("No se han seleccionado productos en la ventana anterior.")
 
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
 
-    # Verificar que haya combos seleccionados
+    # Verificar que hay combos seleccionados
     if 'combos_seleccionados' in st.session_state and not st.session_state.combos_seleccionados.empty:
-        st.table(st.session_state.combos_seleccionados[['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
+        st.table(st.session_state.combos_seleccionados.drop(columns=['Seleccionado']))
     else:
         st.write("No se han seleccionado combos.")
