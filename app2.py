@@ -12,9 +12,6 @@ def cargar_datos():
     output = 'datos.csv'
     gdown.download(url, output, quiet=False)
     df = pd.read_csv(output)
-    st.write("Datos cargados desde 'datos.csv':")
-    st.write(df.head())  # Mostrar las primeras filas para verificar la estructura
-    return df
 
 @st.cache_data
 def cargar_ventas_mensuales():
@@ -22,9 +19,6 @@ def cargar_ventas_mensuales():
     output = 'ventas_mensuales.csv'
     gdown.download(url, output, quiet=False)
     df_ventas = pd.read_csv(output)
-    st.write("Datos cargados desde 'ventas_mensuales.csv':")
-    st.write(df_ventas.head())  # Mostrar las primeras filas para verificar la estructura
-    return df_ventas
 
 # Cargar datos
 df = cargar_datos()
