@@ -36,9 +36,13 @@ def entrenar_modelo_als(df):
 
 # Generar recomendaciones usando ALS
 def generar_recomendaciones(modelo, user_item_matrix, producto_id, N=5):
-    producto_idx = user_item_matrix.columns.get_loc(producto_id)
-    recomendaciones = modelo.recommend(producto_idx, user_item_matrix.values.T, N=N, filter_already_liked_items=False)
-    return [user_item_matrix.columns[i] for i, _ in recomendaciones]
+    try:
+        producto_idx = user_item_matrix.columns.get_loc(producto_id)
+        recomendaciones = modelo.recommend(producto_idx, user_item_matrix.values.T, N=N, filter_already_liked_items=False)
+        return [user_item_matrix.columns[i] for i, _ in recomendaciones]
+    except KeyError:
+        st.error(f"El producto con ID {producto_id} no se encontró en el modelo.")
+        return []
 
 # Función para calcular margen y precio de los combos
 def calcular_combos(df, productos_seleccionados, als_recommendations):
@@ -122,21 +126,25 @@ elif menu_seleccion == "Recomendaciones":
         # Crear el dataframe de combos
         df_combos = calcular_combos(df, st.session_state.productos_seleccionados, als_recommendations)
         
-        # Mostrar tabla de combos
+        # Mostrar tabla de combos con opción de selección (checkbox)
         st.write("Seleccione los combos que desea incluir en el resumen:")
-        combos_seleccionados = st.checkbox("Check", key="check")
         
+        # Agregamos una columna de checkboxes en la tabla de recomendaciones
+        df_combos['Seleccionado'] = df_combos.apply(lambda x: st.checkbox(f"Combo {x.name+1}", key=f"combo_{x.name}"), axis=1)
+        
+        # Guardar los combos seleccionados en st.session_state
         if 'combos_seleccionados' not in st.session_state:
             st.session_state.combos_seleccionados = pd.DataFrame()
-        st.session_state.combos_seleccionados = df_combos[df_combos['Check'] == True]
+        st.session_state.combos_seleccionados = df_combos[df_combos['Seleccionado']]
 
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
 
-    if not st.session_state.combos_seleccionados.empty:
+    # Verificamos que 'combos_seleccionados' esté definido y no esté vacío
+    if 'combos_seleccionados' in st.session_state and not st.session_state.combos_seleccionados.empty:
+        # Calculamos y mostramos el resumen de combos seleccionados
         resumen_df = calcular_resumen_combos(df_ventas, st.session_state.combos_seleccionados)
         st.table(resumen_df)
     else:
         st.write("No se han seleccionado combos.")
-
