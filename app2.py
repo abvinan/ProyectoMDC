@@ -61,3 +61,51 @@ st.session_state.productos_seleccionados = productos_seleccionados
 
 # Mostrar selección actual para verificar
 st.write("Productos seleccionados:", st.session_state.productos_seleccionados)
+
+from scipy.sparse import csr_matrix
+from implicit.als import AlternatingLeastSquares
+
+# Función para preparar la matriz dispersa y entrenar el modelo ALS
+def entrenar_modelo_als(df):
+    # Crear matriz dispersa con facturas en las filas y productos en las columnas
+    user_item_matrix = df.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='CANTIDAD').fillna(0)
+    sparse_matrix = csr_matrix(user_item_matrix.values)
+
+    # Entrenar el modelo ALS
+    modelo = AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
+    modelo.fit(sparse_matrix)
+
+    # Devolver el modelo y la matriz para su uso posterior
+    return modelo, user_item_matrix
+
+# Entrenar el modelo ALS usando el DataFrame `df`
+modelo, user_item_matrix = entrenar_modelo_als(df)
+
+# Función para generar recomendaciones basadas en el modelo ALS
+def generar_recomendaciones(modelo, user_item_matrix, producto_id, N=5):
+    try:
+        # Obtener el índice del producto en la matriz
+        producto_idx = user_item_matrix.columns.get_loc(producto_id)
+        
+        # Generar recomendaciones
+        recomendaciones = modelo.recommend(producto_idx, user_item_matrix.values.T, N=N, filter_already_liked_items=False)
+        
+        # Devolver los códigos de producto recomendados
+        return [user_item_matrix.columns[i] for i, _ in recomendaciones]
+    except KeyError:
+        st.error(f"El producto con ID {producto_id} no se encontró en el modelo.")
+        return []
+
+# Generar recomendaciones para los productos seleccionados por el usuario
+st.write("Recomendaciones de productos:")
+for producto in st.session_state.productos_seleccionados:
+    # Obtener el código de producto (COD_PRODUCTO) correspondiente al nombre del producto seleccionado
+    producto_id = df[df['DESC_PRODUCTO'] == producto]['COD_PRODUCTO'].values[0]
+    
+    # Generar recomendaciones usando el modelo
+    recomendaciones = generar_recomendaciones(modelo, user_item_matrix, producto_id)
+    
+    # Mostrar recomendaciones para cada producto seleccionado
+    st.write(f"Para el producto '{producto}' (ID: {producto_id}), se recomiendan:")
+    st.write(recomendaciones)
+
