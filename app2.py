@@ -39,39 +39,6 @@ def filtrar_por_categoria(df, categoria_seleccionada):
     seccion = secciones.get(categoria_seleccionada)
     return df[df['SECCION'] == seccion]
 
-# Ventana de Selección: Categoría, Subcategoría y Productos
-st.header("Selecciona los Productos para Recomendación")
-
-# Selección de categoría basada en el diccionario de secciones
-categoria_seleccionada = st.selectbox("Seleccione una Categoría", list(secciones.keys()))
-
-# Filtrar el DataFrame para obtener solo los datos de la categoría seleccionada
-df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
-
-# Filtrar subcategorías según la categoría seleccionada
-subcategorias_disponibles = df_categoria['DESC_CLASE'].unique()
-subcategoria_seleccionada = st.selectbox("Seleccione una Subcategoría", subcategorias_disponibles)
-
-# Filtrar productos según la subcategoría seleccionada
-productos_disponibles = df_categoria[df_categoria['DESC_CLASE'] == subcategoria_seleccionada]['DESC_PRODUCTO'].unique()
-productos_seleccionados = st.multiselect("Seleccione hasta 4 productos:", productos_disponibles, max_selections=4)
-
-# Guardar la selección en el estado de sesión
-if 'productos_seleccionados' not in st.session_state:
-    st.session_state.productos_seleccionados = []
-st.session_state.productos_seleccionados = productos_seleccionados
-
-# Crear una tabla para mostrar los productos seleccionados sin el índice
-if st.session_state.productos_seleccionados:
-    productos_seleccionados_df = pd.DataFrame({
-        "Productos seleccionados": st.session_state.productos_seleccionados
-    })
-    productos_seleccionados_df.index = [""] * len(productos_seleccionados_df)  # Eliminar el índice
-    st.table(productos_seleccionados_df)
-else:
-    st.write("No se han seleccionado productos.")
-
-
 # Importamos librerías adicionales para la segunda y tercera ventana
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
@@ -167,6 +134,37 @@ def calcular_resumen_combos(df_ventas, combos_seleccionados):
 menu_seleccion = st.sidebar.radio("Seleccione una ventana:", ["Seleccionar Productos", "Recomendaciones", "Resumen de Combos Seleccionados"])
 
 # Ventana 1: Selección de Productos (ya implementada)
+# Ventana de Selección: Categoría, Subcategoría y Productos
+st.header("Selecciona los Productos para Recomendación")
+
+# Selección de categoría basada en el diccionario de secciones
+categoria_seleccionada = st.selectbox("Seleccione una Categoría", list(secciones.keys()))
+
+# Filtrar el DataFrame para obtener solo los datos de la categoría seleccionada
+df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
+
+# Filtrar subcategorías según la categoría seleccionada
+subcategorias_disponibles = df_categoria['DESC_CLASE'].unique()
+subcategoria_seleccionada = st.selectbox("Seleccione una Subcategoría", subcategorias_disponibles)
+
+# Filtrar productos según la subcategoría seleccionada
+productos_disponibles = df_categoria[df_categoria['DESC_CLASE'] == subcategoria_seleccionada]['DESC_PRODUCTO'].unique()
+productos_seleccionados = st.multiselect("Seleccione hasta 4 productos:", productos_disponibles, max_selections=4)
+
+# Guardar la selección en el estado de sesión
+if 'productos_seleccionados' not in st.session_state:
+    st.session_state.productos_seleccionados = []
+st.session_state.productos_seleccionados = productos_seleccionados
+
+# Crear una tabla para mostrar los productos seleccionados sin el índice
+if st.session_state.productos_seleccionados:
+    productos_seleccionados_df = pd.DataFrame({
+        "Productos seleccionados": st.session_state.productos_seleccionados
+    })
+    productos_seleccionados_df.index = [""] * len(productos_seleccionados_df)  # Eliminar el índice
+    st.table(productos_seleccionados_df)
+else:
+    st.write("No se han seleccionado productos.")
 
 # Ventana 2: Mostrar Combos Recomendados
 if menu_seleccion == "Recomendaciones":
