@@ -104,12 +104,24 @@ def calcular_resumen_combos(df_ventas, combos_seleccionados):
 st.title("Sistema de Recomendación de Productos")
 menu_seleccion = st.sidebar.radio("Seleccione una ventana:", ["Seleccionar Productos", "Recomendaciones", "Resumen de Combos Seleccionados"])
 
-# Ventana 1: Selección de Productos
+# Ventana 1: Selección de Productos con Categoría y Subcategoría
 if menu_seleccion == "Seleccionar Productos":
     st.header("Selecciona los Productos para Recomendación")
-    productos_disponibles = df['DESC_PRODUCTO'].unique()
+
+    # Selección de categoría
+    categorias_disponibles = df['Categoria'].unique()
+    categoria_seleccionada = st.selectbox("Seleccione una Categoría", categorias_disponibles)
+    
+    # Filtrar subcategorías según la categoría seleccionada
+    subcategorias_disponibles = df[df['Categoria'] == categoria_seleccionada]['DESC_CLASE'].unique()
+    subcategoria_seleccionada = st.selectbox("Seleccione una Subcategoría", subcategorias_disponibles)
+
+    # Filtrar productos según la subcategoría seleccionada
+    productos_disponibles = df[(df['Categoria'] == categoria_seleccionada) & 
+                               (df['DESC_CLASE'] == subcategoria_seleccionada)]['DESC_PRODUCTO'].unique()
     productos_seleccionados = st.multiselect("Selecciona hasta 4 productos:", productos_disponibles, max_selections=4)
     
+    # Guardar la selección en el estado de sesión
     if 'productos_seleccionados' not in st.session_state:
         st.session_state.productos_seleccionados = []
     st.session_state.productos_seleccionados = productos_seleccionados
@@ -121,21 +133,29 @@ elif menu_seleccion == "Recomendaciones":
     if st.session_state.get('productos_seleccionados'):
         # Entrenar el modelo ALS y generar recomendaciones
         modelo, user_item_matrix = entrenar_modelo_als(df)
-        als_recommendations = {producto: generar_recomendaciones(modelo, user_item_matrix, producto) for producto in st.session_state.productos_seleccionados}
-        
+        als_recommendations = {}
+
+        for producto in st.session_state.productos_seleccionados:
+            producto_id = df[df['DESC_PRODUCTO'] == producto]['COD_PRODUCTO'].values[0]  # Obtener el ID del producto
+            als_recommendations[producto] = generar_recomendaciones(modelo, user_item_matrix, producto_id)
+
         # Crear el dataframe de combos
         df_combos = calcular_combos(df, st.session_state.productos_seleccionados, als_recommendations)
-        
+
         # Mostrar tabla de combos con opción de selección (checkbox)
         st.write("Seleccione los combos que desea incluir en el resumen:")
-        
-        # Agregamos una columna de checkboxes en la tabla de recomendaciones
-        df_combos['Seleccionado'] = df_combos.apply(lambda x: st.checkbox(f"Combo {x.name+1}", key=f"combo_{x.name}"), axis=1)
-        
+
+        # Agregar checkboxes para selección de combos
+        seleccionados = []
+        for i, row in df_combos.iterrows():
+            if st.checkbox(f"Seleccionar Combo {i+1}: {row['Producto A']} + {row['Producto B']}", key=f"combo_{i}"):
+                seleccionados.append(row)
+
         # Guardar los combos seleccionados en st.session_state
-        if 'combos_seleccionados' not in st.session_state:
+        if seleccionados:
+            st.session_state.combos_seleccionados = pd.DataFrame(seleccionados)
+        else:
             st.session_state.combos_seleccionados = pd.DataFrame()
-        st.session_state.combos_seleccionados = df_combos[df_combos['Seleccionado']]
 
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
@@ -148,3 +168,4 @@ elif menu_seleccion == "Resumen de Combos Seleccionados":
         st.table(resumen_df)
     else:
         st.write("No se han seleccionado combos.")
+
