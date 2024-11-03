@@ -172,7 +172,7 @@ elif menu_seleccion == "Recomendaciones":
         st.table(df_combos[['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
 
         # Menú de selección para incluir combos en el resumen
-        indices_seleccionados = st.multiselect("Seleccione los índices de los combos que desea incluir en el resumen:", df_combos['Indice'].tolist())
+        indices_seleccionados = st.multiselect("Seleccione los índices de los combos que desea considerar:", df_combos['Indice'].tolist())
         
         # Guardar los combos seleccionados
         st.session_state['combos_seleccionados'] = df_combos[df_combos['Indice'].isin(indices_seleccionados)]
