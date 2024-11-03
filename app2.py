@@ -97,6 +97,9 @@ if menu_seleccion == "Seleccionar Productos":
     # Filtrar el DataFrame para obtener solo los datos de la categoría seleccionada
     df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
 
+    # Guardar df_categoria en el estado de la sesión
+    st.session_state['df_categoria'] = df_categoria
+
     # Filtrar subcategorías según la categoría seleccionada
     subcategorias_disponibles = df_categoria['DESC_CLASE'].unique()
     subcategoria_seleccionada = st.selectbox("Seleccione una Subcategoría", subcategorias_disponibles)
@@ -122,8 +125,10 @@ if menu_seleccion == "Seleccionar Productos":
 elif menu_seleccion == "Recomendaciones":
     st.header("Combos Recomendados")
 
-    # Verificar que haya productos seleccionados en la primera ventana
-    if 'productos_seleccionados' in st.session_state and st.session_state.productos_seleccionados:
+    # Verificar que haya productos seleccionados y `df_categoria` esté definido en la sesión
+    if 'productos_seleccionados' in st.session_state and st.session_state.productos_seleccionados and 'df_categoria' in st.session_state:
+        df_categoria = st.session_state['df_categoria']
+
         # Obtener los IDs de los productos seleccionados
         productos_seleccionados_ids = [
             df[df['DESC_PRODUCTO'] == nombre]['COD_PRODUCTO'].values[0]
@@ -166,16 +171,3 @@ elif menu_seleccion == "Recomendaciones":
         st.table(df_combos)
     else:
         st.write("No se han seleccionado productos en la ventana anterior.")
-
-# Ventana 3: Resumen de Combos Seleccionados
-elif menu_seleccion == "Resumen de Combos Seleccionados":
-    st.header("Resumen de Combos Seleccionados")
-
-    # Verificamos que 'combos_seleccionados' esté definido y no esté vacío
-    if 'combos_seleccionados' in st.session_state and not st.session_state.combos_seleccionados.empty:
-        # Aquí debería incluirse la función `calcular_resumen_combos` si tienes esa función definida.
-        # resumen_df = calcular_resumen_combos(df_ventas, st.session_state.combos_seleccionados)
-        # st.table(resumen_df)
-        st.write("Función de resumen pendiente de implementación.")
-    else:
-        st.write("No se han seleccionado combos.")
