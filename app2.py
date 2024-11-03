@@ -24,11 +24,3 @@ def cargar_ventas_mensuales():
 df = cargar_datos()
 df_ventas = cargar_ventas_mensuales()
 
-# Mostrar las primeras filas y las columnas de los DataFrames para verificar la estructura
-st.write("Estructura del DataFrame 'datos':")
-st.write(df.head())
-st.write("Columnas en 'datos':", df.columns)
-
-st.write("Estructura del DataFrame 'ventas_mensuales':")
-st.write(df_ventas.head())
-st.write("Columnas en 'ventas_mensuales':", df_ventas.columns)
