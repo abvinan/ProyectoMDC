@@ -51,14 +51,15 @@ def preparar_datos_para_entrenar(df):
     if len(df) > 0:
         df_train, df_test = train_test_split(df, test_size=0.3, random_state=42)
         df_train_compras = df_train.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
+        df_test_compras = df_test.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
         return df_train_compras, df_test_compras
     else:
         st.error("No hay suficientes datos para dividir en entrenamiento y prueba.")
-        return None, None
+        return pd.DataFrame(), pd.DataFrame()  # Devolver DataFrames vacíos en caso de error
 
 # Entrenar el modelo ALS
 def entrenar_modelo_als(df_train_compras):
-    if df_train_compras is not None:
+    if df_train_compras is not None and not df_train_compras.empty:
         df_train_sparse = csr_matrix(df_train_compras.values)
         als_model = AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
         als_model.fit(df_train_sparse)
@@ -170,7 +171,7 @@ elif menu_seleccion == "Recomendaciones":
         df_combos = pd.DataFrame(combos)
         st.table(df_combos[['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
 
-        # Menú para seleccionar los índices de los combos
+        # Menú de selección para incluir combos en el resumen
         indices_seleccionados = st.multiselect("Seleccione los índices de los combos que desea incluir en el resumen:", df_combos['Indice'].tolist())
         
         # Guardar los combos seleccionados
@@ -186,4 +187,3 @@ elif menu_seleccion == "Resumen de Combos Seleccionados":
         st.table(st.session_state['combos_seleccionados'][['Producto A', 'Producto B', 'Precio Combo', 'Margen Combo']])
     else:
         st.write("No se han seleccionado combos.")
-
