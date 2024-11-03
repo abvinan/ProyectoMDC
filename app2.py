@@ -71,29 +71,41 @@ def entrenar_modelo_als(df):
     user_item_matrix = df.pivot(index='COD_FACTURA', columns='COD_PRODUCTO', values='CANTIDAD').fillna(0)
     sparse_matrix = csr_matrix(user_item_matrix.values)
 
+    # Agregar impresión de depuración
+    st.write("User-Item Matrix (Sparse):")
+    st.write(user_item_matrix.head())
+
     # Entrenar el modelo ALS
     modelo = AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
     modelo.fit(sparse_matrix)
 
+    # Agregar impresión de depuración
+    st.write("Modelo ALS entrenado correctamente")
+
     # Devolver el modelo y la matriz para su uso posterior
     return modelo, user_item_matrix
 
-# Entrenar el modelo ALS usando el DataFrame `df`
-modelo, user_item_matrix = entrenar_modelo_als(df)
 
 # Función para generar recomendaciones basadas en el modelo ALS
 def generar_recomendaciones(modelo, user_item_matrix, producto_id, N=5):
     try:
         # Obtener el índice del producto en la matriz
         producto_idx = user_item_matrix.columns.get_loc(producto_id)
+        st.write(f"Índice del producto {producto_id}: {producto_idx}")
         
         # Generar recomendaciones
         recomendaciones = modelo.recommend(producto_idx, user_item_matrix.values.T, N=N, filter_already_liked_items=False)
+        
+        # Mostrar recomendaciones generadas para depuración
+        st.write("Recomendaciones generadas:", recomendaciones)
         
         # Devolver los códigos de producto recomendados
         return [user_item_matrix.columns[i] for i, _ in recomendaciones]
     except KeyError:
         st.error(f"El producto con ID {producto_id} no se encontró en el modelo.")
+        return []
+    except Exception as e:
+        st.error(f"Error en la función de recomendaciones: {e}")
         return []
 
 # Generar recomendaciones para los productos seleccionados por el usuario
