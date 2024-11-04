@@ -151,9 +151,9 @@ elif menu_seleccion == "Resumen de Combos Seleccionados":
             # Verificar si hay datos disponibles para ambos productos
             if not ventas_a.empty and not ventas_b.empty:
                 # Calcular las métricas requeridas utilizando los nombres de columna correctos
-                cantidad_estimada = ventas_a['Cantidad Vendida'].mean() + ventas_b['Cantidad Vendida'].mean()
-                venta_estimada = ventas_a['Precio Total'].mean() + ventas_b['Precio Total'].mean()
-                ganancia_estimada = (
+                cantidad_estimada = int(ventas_a['Cantidad Vendida'].mean() + ventas_b['Cantidad Vendida'].mean())
+                venta_estimada = int(ventas_a['Precio Total'].mean() + ventas_b['Precio Total'].mean())
+                ganancia_estimada = int(
                     (ventas_a['Precio Total'].mean() - ventas_a['Costo total'].mean()) +
                     (ventas_b['Precio Total'].mean() - ventas_b['Costo total'].mean())
                 )
