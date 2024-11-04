@@ -129,25 +129,51 @@ elif menu_seleccion == "Recomendaciones":
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
+    
     if 'combos_seleccionados' in st.session_state and not st.session_state.combos_seleccionados.empty:
         resumen = []
         for _, row in st.session_state.combos_seleccionados.iterrows():
             producto_a = row['Producto A']
             producto_b = row['Producto B']
-            producto_a_id = df[df['DESC_PRODUCTO'] == producto_a]['COD_PRODUCTO'].values[0]
-            producto_b_id = df[df['DESC_PRODUCTO'] == producto_b]['COD_PRODUCTO'].values[0]
+            
+            # Obtener los códigos de producto correspondientes
+            try:
+                producto_a_id = df[df['DESC_PRODUCTO'] == producto_a]['COD_PRODUCTO'].values[0]
+                producto_b_id = df[df['DESC_PRODUCTO'] == producto_b]['COD_PRODUCTO'].values[0]
+            except IndexError:
+                st.error(f"No se encontró el código para '{producto_a}' o '{producto_b}'.")
+                continue  # Saltar este combo si falta alguno de los códigos
+
+            # Filtrar las ventas mensuales de cada producto usando los nombres de columna correctos
             ventas_a = df_ventas[df_ventas['COD_PRODUCTO'] == producto_a_id]
             ventas_b = df_ventas[df_ventas['COD_PRODUCTO'] == producto_b_id]
-            cantidad_estimada = ventas_a['CANTIDAD'].mean() + ventas_b['CANTIDAD'].mean()
-            venta_estimada = ventas_a['PRECIO_TOTAL'].mean() + ventas_b['PRECIO_TOTAL'].mean()
-            ganancia_estimada = (ventas_a['PRECIO_TOTAL'].mean() - ventas_a['COSTO_TOTAL'].mean()) + (ventas_b['PRECIO_TOTAL'].mean() - ventas_b['COSTO_TOTAL'].mean())
-            resumen.append({
-                'Combo': f"{producto_a} + {producto_b}",
-                'Cantidad estimada de venta': cantidad_estimada,
-                'Venta estimada ($)': venta_estimada,
-                'Ganancia estimada ($)': ganancia_estimada
-            })
-        df_resumen = pd.DataFrame(resumen)
-        st.table(df_resumen)
+
+            # Verificar si hay datos disponibles para ambos productos
+            if not ventas_a.empty and not ventas_b.empty:
+                # Calcular las métricas requeridas utilizando los nombres de columna correctos
+                cantidad_estimada = ventas_a['Cantidad Vendida'].mean() + ventas_b['Cantidad Vendida'].mean()
+                venta_estimada = ventas_a['Precio Total'].mean() + ventas_b['Precio Total'].mean()
+                ganancia_estimada = (
+                    (ventas_a['Precio Total'].mean() - ventas_a['Costo total'].mean()) +
+                    (ventas_b['Precio Total'].mean() - ventas_b['Costo total'].mean())
+                )
+
+                # Agregar los datos del combo al resumen
+                resumen.append({
+                    'Combo': f"{producto_a} + {producto_b}",
+                    'Cantidad estimada de venta': cantidad_estimada,
+                    'Venta estimada ($)': venta_estimada,
+                    'Ganancia estimada ($)': ganancia_estimada
+                })
+            else:
+                st.warning(f"No hay datos de ventas mensuales para '{producto_a}' o '{producto_b}'.")
+
+        # Mostrar el resumen si se generaron datos
+        if resumen:
+            df_resumen = pd.DataFrame(resumen)
+            st.table(df_resumen)
+        else:
+            st.write("No se han generado datos de resumen para los combos seleccionados.")
     else:
         st.write("No se han seleccionado combos para mostrar el resumen.")
+
