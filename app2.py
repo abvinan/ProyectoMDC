@@ -125,7 +125,6 @@ elif menu_seleccion == "Recomendaciones":
         st.table(df_combos)
         seleccion_indices = st.multiselect("Seleccione los índices de los combos que desea considerar:", df_combos.index.tolist())
         st.session_state.combos_seleccionados = df_combos.loc[seleccion_indices]
-
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
@@ -150,10 +149,10 @@ elif menu_seleccion == "Resumen de Combos Seleccionados":
 
             # Verificar si hay datos disponibles para ambos productos
             if not ventas_a.empty and not ventas_b.empty:
-                # Calcular las métricas requeridas utilizando los nombres de columna correctos
-                cantidad_estimada = int(ventas_a['Cantidad Vendida'].mean() + ventas_b['Cantidad Vendida'].mean())
-                venta_estimada = int(ventas_a['Precio Total'].mean() + ventas_b['Precio Total'].mean())
-                ganancia_estimada = int(
+                # Calcular las métricas requeridas utilizando los nombres de columna correctos y formatear con separadores de miles
+                cantidad_estimada = "{:,.0f}".format(ventas_a['Cantidad Vendida'].mean() + ventas_b['Cantidad Vendida'].mean())
+                venta_estimada = "{:,.0f}".format(ventas_a['Precio Total'].mean() + ventas_b['Precio Total'].mean())
+                ganancia_estimada = "{:,.0f}".format(
                     (ventas_a['Precio Total'].mean() - ventas_a['Costo total'].mean()) +
                     (ventas_b['Precio Total'].mean() - ventas_b['Costo total'].mean())
                 )
