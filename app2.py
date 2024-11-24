@@ -103,7 +103,7 @@ def autenticar_usuario():
     st.markdown('<div class="main-container">', unsafe_allow_html=True)
     st.markdown('''
         <div class="login-box">
-            <h1>Iniciar Sesión</h1>
+            <h1>Iniciar sesión</h1>
             <form>
                 <label for="username">Usuario</label>
                 <input id="username" type="text" placeholder="Ingrese su usuario">
