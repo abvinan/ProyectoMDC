@@ -9,6 +9,8 @@ from sklearn.model_selection import train_test_split
 
 import streamlit as st
 
+import streamlit as st
+
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
@@ -23,7 +25,7 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: center; /* Centrado vertical */
-        min-height: 10vh; /* Altura de la pantalla completa */
+        min-height: 100vh; /* Altura completa de la pantalla */
         margin: 0;
     }
     .login-box {
@@ -32,20 +34,21 @@ st.markdown("""
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px;
-        text-align: center;
+        text-align: left; /* Alinear todo el contenido a la izquierda */
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 20px;
         color: #333;
+        text-align: center; /* Alinear el título al centro */
     }
     .login-box label {
         font-size: 16px;
         font-weight: bold;
-        display: block;
         margin-bottom: 8px;
         color: #555;
+        text-align: left; /* Alinear las etiquetas a la izquierda */
     }
     .login-box input[type="text"], 
     .login-box input[type="password"] {
@@ -136,6 +139,7 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
