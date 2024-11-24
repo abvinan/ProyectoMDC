@@ -8,10 +8,17 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
-# Definir credenciales fijas
+import streamlit as st
+import pandas as pd
+import numpy as np
+import gdown
+from scipy.sparse import csr_matrix
+from implicit.als import AlternatingLeastSquares
+from sklearn.model_selection import train_test_split
+
+# AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# Función para manejar la autenticación
 def autenticar_usuario():
     st.sidebar.title("Autenticación")
     username = st.sidebar.text_input("Usuario", key="auth_username")
@@ -24,7 +31,7 @@ def autenticar_usuario():
             st.sidebar.error("Usuario o contraseña incorrectos")
     return st.session_state.get("autenticado", False)
 
-# Verificar si el usuario está autenticado
+# Verificar el estado de autenticación
 if "autenticado" not in st.session_state:
     st.session_state["autenticado"] = False
 
@@ -34,6 +41,10 @@ autenticado = autenticar_usuario()
 if not autenticado:
     st.warning("Por favor, inicie sesión para acceder a la aplicación.")
     st.stop()
+
+# Código principal de la aplicación (solo se ejecutará si está autenticado)
+st.title("Bienvenido a la Aplicación de Recomendación")
+# Aquí iría tu lógica de la aplicación...
 
 
 
