@@ -8,18 +8,26 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
+import streamlit as st
 
+# AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para mejorar el diseño
+# CSS para centrar el contenido correctamente
 st.markdown("""
     <style>
-    .main-container {
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    section.main {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        height: 100vh;
     }
     label {
         font-size: 22px; /* Tamaño de las etiquetas */
@@ -27,7 +35,6 @@ st.markdown("""
     }
     input {
         font-size: 20px; /* Tamaño del texto en los campos */
-        padding: 10px;
     }
     button {
         font-size: 20px; /* Tamaño del texto en los botones */
@@ -43,7 +50,6 @@ st.markdown("""
 
 # Función para manejar la autenticación
 def autenticar_usuario():
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
     st.markdown('<h1>Iniciar Sesión</h1>', unsafe_allow_html=True)
     
     # Campos de entrada para usuario y contraseña
@@ -57,7 +63,6 @@ def autenticar_usuario():
             st.success("Inicio de sesión exitoso")
         else:
             st.error("Usuario o contraseña incorrectos")
-    st.markdown('</div>', unsafe_allow_html=True)
     return st.session_state.get("autenticado", False)
 
 # Inicializar estado de autenticación
@@ -74,6 +79,7 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
