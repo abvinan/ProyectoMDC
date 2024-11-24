@@ -32,7 +32,7 @@ st.markdown("""
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px; /* Tamaño fijo para evitar crecimiento */
         text-align: left; /* Texto alineado a la izquierda */
-        margin-left: 200px; 
+        margin-left: 180px; 
     }
     .login-box h1 {
         font-size: 24px;
