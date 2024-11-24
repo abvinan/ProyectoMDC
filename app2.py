@@ -23,8 +23,8 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: flex-start; /* No centrado verticalmente */
-        min-height: 100vh;
-        padding-top: 50px; /* Ajusta esta distancia si deseas bajar o subir el cuadro */
+        min-height: 5vh;
+        padding-top: 30px; /* Ajusta esta distancia si deseas bajar o subir el cuadro */
     }
     .login-box {
         background: white;
