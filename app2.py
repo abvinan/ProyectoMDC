@@ -9,12 +9,10 @@ from sklearn.model_selection import train_test_split
 
 import streamlit as st
 
-import streamlit as st
-
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar completamente el cuadro y evitar scroll
+# CSS para centrar horizontalmente el cuadro
 st.markdown("""
     <style>
     body {
@@ -24,9 +22,9 @@ st.markdown("""
     .main-container {
         display: flex;
         justify-content: center; /* Centrado horizontal */
-        align-items: center; /* Centrado vertical */
-        min-height: 5vh; /* Altura completa de la pantalla */
-        margin: 0;
+        align-items: flex-start; /* No centrado verticalmente */
+        min-height: 100vh;
+        padding-top: 50px; /* Ajusta esta distancia si deseas bajar o subir el cuadro */
     }
     .login-box {
         background: white;
