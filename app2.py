@@ -10,38 +10,40 @@ import streamlit as st
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar en una pantalla de 14 pulgadas
+# CSS para ajustar la posición y tamaño del cuadro
 st.markdown("""
     <style>
     body {
         margin: 0;
+        padding: 0;
         background-color: #f4f4f4;
     }
     .main-container {
         display: flex;
         justify-content: center; /* Centrado horizontal */
-        align-items: flex-start; /* Alineado en la parte superior */
-        min-height: 100vh; /* Asegurar altura de la pantalla */
-        padding-top: 30px; /* Ajustar margen superior */
+        align-items: flex-start; /* Centrado vertical (ajustado a la parte superior) */
+        height: 100vh; /* Altura total de la pantalla */
+        margin-top: 10vh; /* Desplazamiento desde la parte superior */
     }
     .login-box {
         background: white;
-        padding: 30px;
+        padding: 20px;
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        width: 320px;
-        text-align: left; /* Alinear texto a la izquierda */
+        width: 320px; /* Tamaño fijo para evitar crecimiento */
+        text-align: left; /* Texto alineado a la izquierda */
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         color: #333;
-        text-align: center; /* Alinear el título al centro */
+        text-align: center; /* Centrar el título */
     }
     .login-box label {
         font-size: 16px;
         font-weight: bold;
+        display: block;
         margin-bottom: 8px;
         color: #555;
     }
@@ -75,8 +77,7 @@ st.markdown("""
     .login-box .extras {
         font-size: 14px;
         margin-top: 10px;
-        display: flex;
-        justify-content: space-between;
+        text-align: center;
     }
     .login-box .extras a {
         color: #6c63ff;
@@ -134,6 +135,7 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
