@@ -20,11 +20,12 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: center; /* Centrado horizontal */
-        align-items: flex-start; /* Centrado vertical (ajustado a la parte superior) */
-        height: 4vh; /* Altura total de la pantalla */
-        margin-top: 4vh; /* Desplazamiento desde la parte superior */
-    }
+        justify-content: flex-start; /* Cambia el centrado horizontal a la izquierda */
+        align-items: flex-start; /* Centrado vertical en la parte superior */
+        height: 100vh; /* Altura de la pantalla */
+        margin-top: 4vh; /* Ajusta el desplazamiento desde arriba */
+        margin-left: 20px; /* Aumenta el margen izquierdo */
+}
     .login-box {
         background: white;
         padding: 20px;
