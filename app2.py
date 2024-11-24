@@ -12,7 +12,7 @@ import streamlit as st
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar completamente el cuadro
+# CSS para centrar completamente el cuadro y evitar scroll
 st.markdown("""
     <style>
     body {
@@ -23,15 +23,15 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: center; /* Centrado vertical */
-        height: 100vh; /* Altura de la pantalla completa */
-        overflow: hidden; /* Evitar scroll */
+        min-height: 100vh; /* Altura de la pantalla completa */
+        margin: 0;
     }
     .login-box {
         background: white;
         padding: 30px;
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        width: 300px;
+        width: 320px;
         text-align: center;
     }
     .login-box h1 {
@@ -43,7 +43,6 @@ st.markdown("""
     .login-box label {
         font-size: 16px;
         font-weight: bold;
-        text-align: left;
         display: block;
         margin-bottom: 8px;
         color: #555;
@@ -70,7 +69,6 @@ st.markdown("""
         border-radius: 5px;
         font-size: 16px;
         cursor: pointer;
-        margin-top: 10px;
         width: 100%;
     }
     .login-box button:hover {
@@ -138,6 +136,7 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
