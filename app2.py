@@ -14,7 +14,7 @@ USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 st.markdown("""
     <style>
     body {
-        margin: 20;
+        margin: 0;
         padding: 0;
         background-color: #f4f4f4;
     }
@@ -22,7 +22,7 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: flex-start; /* Centrado vertical (ajustado a la parte superior) */
-        height: 100vh; /* Altura total de la pantalla */
+        height: 4vh; /* Altura total de la pantalla */
         margin-top: 10vh; /* Desplazamiento desde la parte superior */
     }
     .login-box {
