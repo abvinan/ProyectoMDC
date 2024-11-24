@@ -5,15 +5,12 @@ import gdown
 from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 from sklearn.model_selection import train_test_split
-
-import streamlit as st
-
 import streamlit as st
 
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar solo en pantallas de escritorio
+# CSS para centrar en una pantalla de 14 pulgadas
 st.markdown("""
     <style>
     body {
@@ -23,8 +20,9 @@ st.markdown("""
     .main-container {
         display: flex;
         justify-content: center; /* Centrado horizontal */
-        align-items: center; /* Centrado vertical */
-        min-height: 100vh; /* Altura completa de la ventana */
+        align-items: flex-start; /* Alineado en la parte superior */
+        min-height: 100vh; /* Asegurar altura de la pantalla */
+        padding-top: 30px; /* Ajustar margen superior */
     }
     .login-box {
         background: white;
@@ -95,14 +93,6 @@ st.markdown("""
     .login-box .remember-me input {
         margin-right: 5px;
     }
-
-    /* Ajuste para pantallas grandes */
-    @media (min-width: 1024px) {
-        .main-container {
-            justify-content: center; /* Centrado horizontal específico para pantallas grandes */
-            align-items: center; /* Centrado vertical */
-        }
-    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -144,6 +134,7 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
