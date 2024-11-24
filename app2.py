@@ -8,35 +8,18 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
-USER_CREDENTIALS = {"username": "admin", "password": "password123"}
+# Depuración: inicio de la aplicación
+st.write("Iniciando aplicación...")
 
-# Agregar estilos personalizados para centrar y aumentar el tamaño de la fuente
-st.markdown("""
-    <style>
-    .main {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    .sidebar-content {
-        font-size: 20px; /* Tamaño de fuente de la barra lateral */
-    }
-    input {
-        font-size: 18px; /* Tamaño de fuente de los inputs */
-    }
-    button {
-        font-size: 18px; /* Tamaño de fuente del botón */
-    }
-    </style>
-""", unsafe_allow_html=True)
+# AUTENTICACIÓN
+USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
 def autenticar_usuario():
     st.markdown('<div class="main">', unsafe_allow_html=True)  # Abrir el contenedor principal
     st.title("Autenticación")
     username = st.text_input("Usuario", key="auth_username")
     password = st.text_input("Contraseña", type="password", key="auth_password")
+    st.write(f"Usuario ingresado: {username}")  # Depuración
     if st.button("Iniciar Sesión"):
         if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
             st.session_state["autenticado"] = True
@@ -59,7 +42,7 @@ if not autenticado:
 
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
-# Aquí iría el resto de tu lógica...
+st.write("¡La aplicación está funcionando correctamente!")
 
 
 
