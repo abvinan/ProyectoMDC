@@ -8,15 +8,13 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
-import streamlit as st
 
-# AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
 # CSS para mejorar el diseño
 st.markdown("""
     <style>
-    .main {
+    .main-container {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -24,27 +22,35 @@ st.markdown("""
         height: 100vh;
     }
     label {
-        font-size: 22px; /* Tamaño de las etiquetas "Usuario" y "Contraseña" */
+        font-size: 22px; /* Tamaño de las etiquetas */
         font-weight: bold;
     }
     input {
-        font-size: 18px; /* Tamaño del texto en los campos */
+        font-size: 20px; /* Tamaño del texto en los campos */
+        padding: 10px;
     }
     button {
-        font-size: 18px; /* Tamaño del texto en los botones */
+        font-size: 20px; /* Tamaño del texto en los botones */
+        padding: 10px 20px;
     }
     h1 {
-        font-size: 30px; /* Tamaño del título principal */
+        font-size: 35px; /* Tamaño del título principal */
         font-weight: bold;
+        text-align: center;
     }
     </style>
 """, unsafe_allow_html=True)
 
+# Función para manejar la autenticación
 def autenticar_usuario():
-    st.markdown('<div class="main">', unsafe_allow_html=True)
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
     st.markdown('<h1>Iniciar Sesión</h1>', unsafe_allow_html=True)
+    
+    # Campos de entrada para usuario y contraseña
     username = st.text_input("Usuario", placeholder="Ingrese su usuario")
     password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+    
+    # Botón de inicio de sesión
     if st.button("Iniciar Sesión"):
         if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
             st.session_state["autenticado"] = True
@@ -54,23 +60,20 @@ def autenticar_usuario():
     st.markdown('</div>', unsafe_allow_html=True)
     return st.session_state.get("autenticado", False)
 
-# Verificar estado de autenticación
+# Inicializar estado de autenticación
 if "autenticado" not in st.session_state:
     st.session_state["autenticado"] = False
 
+# Llamar a la función de autenticación
 autenticado = autenticar_usuario()
 
-# Mostrar la aplicación solo si el usuario está autenticado
+# Detener la aplicación si no está autenticado
 if not autenticado:
     st.stop()
 
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
-
-
-st.write("Iniciando autenticación...")
-st.write("Estado de autenticado:", st.session_state["autenticado"])
 
 
 
