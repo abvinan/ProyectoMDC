@@ -25,7 +25,7 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: center; /* Centrado vertical */
-        min-height: 10vh; /* Altura completa de la pantalla */
+        min-height: 5vh; /* Altura completa de la pantalla */
         margin: 0;
     }
     .login-box {
