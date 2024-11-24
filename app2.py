@@ -14,7 +14,7 @@ USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 st.markdown("""
     <style>
     body {
-        margin: 0;
+        margin: 20;
         padding: 0;
         background-color: #f4f4f4;
     }
