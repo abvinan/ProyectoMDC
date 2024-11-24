@@ -22,8 +22,8 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: flex-start; /* Centrado vertical (ajustado a la parte superior) */
-        height: 100vh; /* Altura total de la pantalla */
-        margin-top: 10vh; /* Desplazamiento desde la parte superior */
+        height: 4vh; /* Altura total de la pantalla */
+        margin-top: 4vh; /* Desplazamiento desde la parte superior */
     }
     .login-box {
         background: white;
