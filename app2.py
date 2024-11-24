@@ -12,7 +12,7 @@ import streamlit as st
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar horizontalmente el cuadro
+# CSS para centrar el cuadro completamente
 st.markdown("""
     <style>
     body {
@@ -22,9 +22,8 @@ st.markdown("""
     .main-container {
         display: flex;
         justify-content: center; /* Centrado horizontal */
-        align-items: flex-start; /* No centrado verticalmente */
-        min-height: 5vh;
-        padding-top: 30px; /* Ajusta esta distancia si deseas bajar o subir el cuadro */
+        align-items: center; /* Centrado vertical */
+        min-height: 100vh; /* Altura completa de la ventana */
     }
     .login-box {
         background: white;
@@ -32,7 +31,7 @@ st.markdown("""
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px;
-        text-align: left; /* Alinear todo el contenido a la izquierda */
+        text-align: left; /* Alinear texto a la izquierda */
     }
     .login-box h1 {
         font-size: 24px;
@@ -46,7 +45,6 @@ st.markdown("""
         font-weight: bold;
         margin-bottom: 8px;
         color: #555;
-        text-align: left; /* Alinear las etiquetas a la izquierda */
     }
     .login-box input[type="text"], 
     .login-box input[type="password"] {
