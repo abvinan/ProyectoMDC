@@ -22,9 +22,9 @@ st.markdown("""
         display: flex;
         justify-content: flex-start; /* Cambia el centrado horizontal a la izquierda */
         align-items: flex-start; /* Centrado vertical en la parte superior */
-        height: 100vh; /* Altura de la pantalla */
+        height: 4vh; /* Altura de la pantalla */
         margin-top: 4vh; /* Ajusta el desplazamiento desde arriba */
-        margin-left: 20px; /* Aumenta el margen izquierdo */
+        margin-left: 40px; /* Aumenta el margen izquierdo */
 }
     .login-box {
         background: white;
