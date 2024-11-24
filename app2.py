@@ -8,61 +8,115 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
-import streamlit as st
-
-# AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar el contenido correctamente
+# CSS para mejorar el diseño
 st.markdown("""
     <style>
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-    }
-    section.main {
+    .main-container {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
+        height: 100vh;
+        background-color: #f4f4f4;
     }
-    label {
-        font-size: 22px; /* Tamaño de las etiquetas */
-        font-weight: bold;
-    }
-    input {
-        font-size: 20px; /* Tamaño del texto en los campos */
-    }
-    button {
-        font-size: 20px; /* Tamaño del texto en los botones */
-        padding: 10px 20px;
-    }
-    h1 {
-        font-size: 35px; /* Tamaño del título principal */
-        font-weight: bold;
+    .login-box {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
         text-align: center;
+    }
+    .login-box h1 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .login-box label {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: left;
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+    }
+    .login-box input[type="text"], 
+    .login-box input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    .login-box input:focus {
+        border-color: #6c63ff;
+        outline: none;
+    }
+    .login-box button {
+        background-color: #6c63ff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+        width: 100%;
+    }
+    .login-box button:hover {
+        background-color: #5750d9;
+    }
+    .login-box .extras {
+        font-size: 14px;
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .login-box .extras a {
+        color: #6c63ff;
+        text-decoration: none;
+    }
+    .login-box .extras a:hover {
+        text-decoration: underline;
+    }
+    .login-box .remember-me {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+    .login-box .remember-me input {
+        margin-right: 5px;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # Función para manejar la autenticación
 def autenticar_usuario():
-    st.markdown('<h1>Iniciar Sesión</h1>', unsafe_allow_html=True)
-    
-    # Campos de entrada para usuario y contraseña
-    username = st.text_input("Usuario", placeholder="Ingrese su usuario")
-    password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
-    
-    # Botón de inicio de sesión
-    if st.button("Iniciar Sesión"):
-        if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
-            st.session_state["autenticado"] = True
-            st.success("Inicio de sesión exitoso")
-        else:
-            st.error("Usuario o contraseña incorrectos")
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
+    st.markdown('''
+        <div class="login-box">
+            <h1>Iniciar Sesión</h1>
+            <form>
+                <label for="username">Usuario</label>
+                <input id="username" type="text" placeholder="Ingrese su usuario">
+                <label for="password">Contraseña</label>
+                <input id="password" type="password" placeholder="Ingrese su contraseña">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Recuérdame</label>
+                </div>
+                <button type="submit">Iniciar Sesión</button>
+                <div class="extras">
+                    <a href="#">¿Olvidaste tu contraseña?</a>
+                </div>
+            </form>
+        </div>
+    ''', unsafe_allow_html=True)
     return st.session_state.get("autenticado", False)
 
 # Inicializar estado de autenticación
@@ -79,7 +133,6 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
-
 
 
 
