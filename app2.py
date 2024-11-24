@@ -8,10 +8,12 @@ from sklearn.model_selection import train_test_split
 
 import streamlit as st
 
+import streamlit as st
+
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar el cuadro en pantallas grandes
+# CSS para centrar solo en pantallas de escritorio
 st.markdown("""
     <style>
     body {
@@ -94,12 +96,11 @@ st.markdown("""
         margin-right: 5px;
     }
 
-    /* Media queries para pantallas grandes */
+    /* Ajuste para pantallas grandes */
     @media (min-width: 1024px) {
         .main-container {
             justify-content: center; /* Centrado horizontal específico para pantallas grandes */
-            align-items: flex-start; /* Cuadro ligeramente más alto */
-            padding-top: 10%; /* Ajuste vertical */
+            align-items: center; /* Centrado vertical */
         }
     }
     </style>
