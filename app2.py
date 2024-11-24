@@ -6,9 +6,6 @@ from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 from sklearn.model_selection import train_test_split
 
-
-import streamlit as st
-
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
@@ -23,7 +20,7 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: center; /* Centrado vertical */
-        min-height: 100vh; /* Altura completa de la ventana */
+        min-height: 5vh; /* Altura completa de la ventana */
     }
     .login-box {
         background: white;
