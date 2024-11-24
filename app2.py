@@ -8,18 +8,22 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
+import streamlit as st
+
+# AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para mejorar el diseño
+# CSS para mejorar el diseño y limitar el fondo gris
 st.markdown("""
     <style>
+    body {
+        background-color: #f4f4f4;
+    }
     .main-container {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
         height: 100vh;
-        background-color: #f4f4f4;
     }
     .login-box {
         background: white;
@@ -133,6 +137,7 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
