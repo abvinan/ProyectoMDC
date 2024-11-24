@@ -24,7 +24,6 @@ st.markdown("""
         align-items: flex-start; /* Centrado vertical en la parte superior */
         height: 4vh; /* Altura de la pantalla */
         margin-top: 4vh; /* Ajusta el desplazamiento desde arriba */
-        margin-left: 8000px; /* Aumenta el margen izquierdo */
 }
     .login-box {
         background: white;
@@ -33,6 +32,7 @@ st.markdown("""
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px; /* Tamaño fijo para evitar crecimiento */
         text-align: left; /* Texto alineado a la izquierda */
+        margin-left: 50px; 
     }
     .login-box h1 {
         font-size: 24px;
