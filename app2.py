@@ -8,10 +8,12 @@ from sklearn.model_selection import train_test_split
 
 import streamlit as st
 
+import streamlit as st
+
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para mover el formulario a la parte superior central
+# CSS para subir el cuadro a la parte superior central
 st.markdown("""
     <style>
     body {
@@ -20,10 +22,10 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: center;
-        align-items: flex-start; /* Alineación al principio vertical */
-        height: 100vh; /* Altura completa de la pantalla */
-        padding-top: 50px; /* Espaciado desde la parte superior */
+        justify-content: center; /* Centrado horizontal */
+        align-items: flex-start; /* Alineado en la parte superior */
+        height: 100vh; /* Altura total de la pantalla */
+        padding-top: 20px; /* Ajusta la distancia desde la parte superior */
     }
     .login-box {
         background: white;
