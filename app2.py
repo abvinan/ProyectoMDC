@@ -6,6 +6,37 @@ from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 from sklearn.model_selection import train_test_split
 
+# AUTENTICACIÓN
+
+# Definir credenciales fijas
+USER_CREDENTIALS = {"username": "admin", "password": "password123"}
+
+# Función para manejar la autenticación
+def autenticar_usuario():
+    st.sidebar.title("Autenticación")
+    username = st.sidebar.text_input("Usuario", key="auth_username")
+    password = st.sidebar.text_input("Contraseña", type="password", key="auth_password")
+    if st.sidebar.button("Iniciar Sesión"):
+        if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
+            st.session_state["autenticado"] = True
+            st.sidebar.success("Inicio de sesión exitoso")
+        else:
+            st.sidebar.error("Usuario o contraseña incorrectos")
+    return st.session_state.get("autenticado", False)
+
+# Verificar si el usuario está autenticado
+if "autenticado" not in st.session_state:
+    st.session_state["autenticado"] = False
+
+autenticado = autenticar_usuario()
+
+# Mostrar la aplicación solo si el usuario está autenticado
+if not autenticado:
+    st.warning("Por favor, inicie sesión para acceder a la aplicación.")
+    st.stop()
+
+
+
 # Funciones para cargar datos
 @st.cache_data
 def cargar_datos():
