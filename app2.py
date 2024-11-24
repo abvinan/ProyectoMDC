@@ -11,7 +11,7 @@ import streamlit as st
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para corregir el centrado
+# CSS para mover el formulario a la parte superior central
 st.markdown("""
     <style>
     body {
@@ -21,8 +21,9 @@ st.markdown("""
     .main-container {
         display: flex;
         justify-content: center;
-        align-items: center;
-        height: 100vh; /* Asegura que ocupe toda la ventana */
+        align-items: flex-start; /* Alineación al principio vertical */
+        height: 100vh; /* Altura completa de la pantalla */
+        padding-top: 50px; /* Espaciado desde la parte superior */
     }
     .login-box {
         background: white;
