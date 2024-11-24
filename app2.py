@@ -8,18 +8,42 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
-# Depuración: inicio de la aplicación
-st.write("Iniciando aplicación...")
-
-# AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
+
+# Agregar estilos personalizados
+st.markdown("""
+    <style>
+    .main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .sidebar-content {
+        font-size: 20px;
+    }
+    label {
+        font-size: 18px; /* Aumenta el tamaño de las etiquetas */
+    }
+    input {
+        font-size: 18px; /* Aumenta el tamaño de las entradas */
+    }
+    button {
+        font-size: 18px; /* Aumenta el tamaño del botón */
+    }
+    h1 {
+        font-size: 30px; /* Tamaño del título */
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 def autenticar_usuario():
     st.markdown('<div class="main">', unsafe_allow_html=True)  # Abrir el contenedor principal
-    st.title("Autenticación")
-    username = st.text_input("Usuario", key="auth_username")
-    password = st.text_input("Contraseña", type="password", key="auth_password")
-    st.write(f"Usuario ingresado: {username}")  # Depuración
+    st.markdown('<h1>Iniciar Sesión</h1>', unsafe_allow_html=True)  # Cambiar título
+    username = st.text_input("Usuario", key="auth_username", placeholder="Ingrese su usuario")
+    password = st.text_input("Contraseña", type="password", key="auth_password", placeholder="Ingrese su contraseña")
     if st.button("Iniciar Sesión"):
         if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
             st.session_state["autenticado"] = True
@@ -37,12 +61,11 @@ autenticado = autenticar_usuario()
 
 # Mostrar la aplicación solo si el usuario está autenticado
 if not autenticado:
-    st.warning("Por favor, inicie sesión para acceder a la aplicación.")
     st.stop()
 
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
-st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
