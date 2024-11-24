@@ -6,10 +6,12 @@ from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 from sklearn.model_selection import train_test_split
 
+import streamlit as st
+
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para centrar el cuadro completamente
+# CSS para centrar el cuadro en pantallas grandes
 st.markdown("""
     <style>
     body {
@@ -20,7 +22,7 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: center; /* Centrado vertical */
-        min-height: 3vh; /* Altura completa de la ventana */
+        min-height: 100vh; /* Altura completa de la ventana */
     }
     .login-box {
         background: white;
@@ -90,6 +92,15 @@ st.markdown("""
     }
     .login-box .remember-me input {
         margin-right: 5px;
+    }
+
+    /* Media queries para pantallas grandes */
+    @media (min-width: 1024px) {
+        .main-container {
+            justify-content: center; /* Centrado horizontal específico para pantallas grandes */
+            align-items: flex-start; /* Cuadro ligeramente más alto */
+            padding-top: 10%; /* Ajuste vertical */
+        }
     }
     </style>
 """, unsafe_allow_html=True)
