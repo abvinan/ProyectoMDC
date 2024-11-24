@@ -8,27 +8,42 @@ from sklearn.model_selection import train_test_split
 
 # AUTENTICACIÓN
 
-import streamlit as st
-import pandas as pd
-import numpy as np
-import gdown
-from scipy.sparse import csr_matrix
-from implicit.als import AlternatingLeastSquares
-from sklearn.model_selection import train_test_split
-
-# AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
+# Agregar estilos personalizados para centrar y aumentar el tamaño de la fuente
+st.markdown("""
+    <style>
+    .main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .sidebar-content {
+        font-size: 20px; /* Tamaño de fuente de la barra lateral */
+    }
+    input {
+        font-size: 18px; /* Tamaño de fuente de los inputs */
+    }
+    button {
+        font-size: 18px; /* Tamaño de fuente del botón */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 def autenticar_usuario():
-    st.sidebar.title("Autenticación")
-    username = st.sidebar.text_input("Usuario", key="auth_username")
-    password = st.sidebar.text_input("Contraseña", type="password", key="auth_password")
-    if st.sidebar.button("Iniciar Sesión"):
+    st.markdown('<div class="main">', unsafe_allow_html=True)  # Abrir el contenedor principal
+    st.title("Autenticación")
+    username = st.text_input("Usuario", key="auth_username")
+    password = st.text_input("Contraseña", type="password", key="auth_password")
+    if st.button("Iniciar Sesión"):
         if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
             st.session_state["autenticado"] = True
-            st.sidebar.success("Inicio de sesión exitoso")
+            st.success("Inicio de sesión exitoso")
         else:
-            st.sidebar.error("Usuario o contraseña incorrectos")
+            st.error("Usuario o contraseña incorrectos")
+    st.markdown('</div>', unsafe_allow_html=True)  # Cerrar el contenedor principal
     return st.session_state.get("autenticado", False)
 
 # Verificar el estado de autenticación
@@ -42,9 +57,11 @@ if not autenticado:
     st.warning("Por favor, inicie sesión para acceder a la aplicación.")
     st.stop()
 
-# Código principal de la aplicación (solo se ejecutará si está autenticado)
+# Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
-# Aquí iría tu lógica de la aplicación...
+# Aquí iría el resto de tu lógica...
+
+
 
 
 
