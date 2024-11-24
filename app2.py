@@ -20,7 +20,7 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: center; /* Centrado vertical */
-        min-height: 5vh; /* Altura completa de la ventana */
+        min-height: 3vh; /* Altura completa de la ventana */
     }
     .login-box {
         background: white;
