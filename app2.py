@@ -22,8 +22,8 @@ st.markdown("""
         display: flex;
         justify-content: center; /* Centrado horizontal */
         align-items: flex-start; /* Centrado vertical (ajustado a la parte superior) */
-        height: 4vh; /* Altura total de la pantalla */
-        margin-top: 3vh; /* Desplazamiento desde la parte superior */
+        height: 100vh; /* Altura total de la pantalla */
+        margin-top: 10vh; /* Desplazamiento desde la parte superior */
     }
     .login-box {
         background: white;
@@ -135,6 +135,7 @@ if not autenticado:
 # Código principal de la aplicación
 st.title("Bienvenido a la Aplicación de Recomendación")
 st.write("¡La aplicación está funcionando correctamente!")
+
 
 
 
