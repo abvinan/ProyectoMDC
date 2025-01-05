@@ -185,27 +185,27 @@ def sistema_recomendacion():
                 st.write("No se han generado datos de resumen para los combos seleccionados.")
         else:
             st.write("No se han seleccionado combos para mostrar el resumen.")
-
-# Declaración de la variable secciones
-secciones = {
-    'Limpieza del Hogar': 14,
-    'Cuidado Personal': 16,
-    'Bebidas': 24,
-    'Alimentos': 25
-}
-
-# Lógica principal
+            
+# Lógica principal: decide si mostrar la autenticación o la aplicación
 if "autenticado" not in st.session_state or not st.session_state["autenticado"]:
     autenticar_usuario()
 else:
-    # Cargar datos globales antes de iniciar el sistema de recomendación
+    # Asegurarse de cargar los datos antes de ejecutar el sistema
     if "df" not in st.session_state:
-        st.session_state["df"] = cargar_datos()  # Asegúrate de que los datos estén cargados
+        st.session_state["df"] = cargar_datos()
     if "df_ventas" not in st.session_state:
-        st.session_state["df_ventas"] = cargar_ventas_mensuales()  # Ventas mensuales
+        st.session_state["df_ventas"] = cargar_ventas_mensuales()
 
-    df = st.session_state["df"]  # Dataset de productos
-    df_ventas = st.session_state["df_ventas"]  # Dataset de ventas mensuales
+    # Variables globales necesarias
+    secciones = {
+        'Limpieza del Hogar': 14,
+        'Cuidado Personal': 16,
+        'Bebidas': 24,
+        'Alimentos': 25
+    }
+
+    df = st.session_state["df"]
+    df_ventas = st.session_state["df_ventas"]
 
     sistema_recomendacion()  # Inicia la aplicación
 
