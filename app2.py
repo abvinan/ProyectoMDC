@@ -186,6 +186,14 @@ def sistema_recomendacion():
         else:
             st.write("No se han seleccionado combos para mostrar el resumen.")
 
+# Declaración de la variable secciones
+secciones = {
+    'Limpieza del Hogar': 14,
+    'Cuidado Personal': 16,
+    'Bebidas': 24,
+    'Alimentos': 25
+}
+
 # Lógica principal
 if "autenticado" not in st.session_state or not st.session_state["autenticado"]:
     autenticar_usuario()
