@@ -104,15 +104,19 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
+        # Contenedor principal
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
         st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
         # Capturar credenciales de usuario y contraseña
-        username = st.text_input("Usuario")
-        password = st.text_input("Contraseña", type="password")
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
 
-        # Botón para autenticar
+        # Casilla de "Recuérdame"
+        remember_me = st.checkbox("Recuérdame")
+
+        # Botón para iniciar sesión
         if st.button("Iniciar Sesión"):
             if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
                 st.session_state["autenticado"] = True
@@ -120,8 +124,13 @@ def autenticar_usuario():
             else:
                 st.error("Usuario o contraseña incorrectos.")
 
+        # Enlace de "¿Olvidaste tu contraseña?"
+        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
+
+        # Cerrar contenedores
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+
 
 
 # Función para cargar datos
