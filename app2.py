@@ -19,10 +19,9 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 4vh;
-        margin-top: 4vh;
+        justify-content: center; /* Centrar horizontalmente */
+        align-items: center; /* Centrar verticalmente */
+        height: 100vh; /* Altura completa de la ventana */
     }
     .login-box {
         background: white;
@@ -95,6 +94,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # Función para manejar la autenticación
