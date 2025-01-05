@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-# CSS para ajustar el diseño de la ventana de inicio de sesión
+# CSS para ajustar la posición y tamaño del cuadro
 st.markdown("""
     <style>
     body {
@@ -19,28 +19,28 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: flex-start;
-        align-items: flex-start;
-        height: 4vh;
-        margin-top: 4vh;
-    }
+        justify-content: flex-start; /* Cambia el centrado horizontal a la izquierda */
+        align-items: flex-start; /* Centrado vertical en la parte superior */
+        height: 4vh; /* Altura de la pantalla */
+        margin-top: 4vh; /* Ajusta el desplazamiento desde arriba */
+}
     .login-box {
         background: white;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        width: 320px;
-        text-align: left;
-        margin-left: 180px;
+        width: 320px; /* Tamaño fijo para evitar crecimiento */
+        text-align: left; /* Texto alineado a la izquierda */
+        margin-left: 180px; 
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 15px;
         color: #333;
-        text-align: center;
+        text-align: center; /* Centrar el título */
     }
-        .login-box label {
+    .login-box label {
         font-size: 16px;
         font-weight: bold;
         display: block;
@@ -94,9 +94,9 @@ st.markdown("""
     .login-box .remember-me input {
         margin-right: 5px;
     }
-
     </style>
 """, unsafe_allow_html=True)
+
 
 # Función para manejar la autenticación
 def autenticar_usuario():
