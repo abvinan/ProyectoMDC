@@ -198,5 +198,15 @@ secciones = {
 if "autenticado" not in st.session_state or not st.session_state["autenticado"]:
     autenticar_usuario()
 else:
-    sistema_recomendacion()
+    # Cargar datos globales antes de iniciar el sistema de recomendación
+    if "df" not in st.session_state:
+        st.session_state["df"] = cargar_datos()  # Asegúrate de que los datos estén cargados
+    if "df_ventas" not in st.session_state:
+        st.session_state["df_ventas"] = cargar_ventas_mensuales()  # Ventas mensuales
+
+    df = st.session_state["df"]  # Dataset de productos
+    df_ventas = st.session_state["df_ventas"]  # Dataset de ventas mensuales
+
+    sistema_recomendacion()  # Inicia la aplicación
+
 
