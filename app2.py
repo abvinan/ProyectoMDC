@@ -19,8 +19,8 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: flex-start;
-        align-items: flex-start;
+        justify-content: center;
+        align-items: center;
         height: 4vh;
         margin-top: 4vh;
     }
