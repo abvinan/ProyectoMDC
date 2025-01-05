@@ -19,9 +19,10 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+        justify-content: flex-start;
+        align-items: flex-start;
+        height: 4vh;
+        margin-top: 4vh;
     }
     .login-box {
         background: white;
@@ -30,6 +31,7 @@ st.markdown("""
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px;
         text-align: left;
+        margin-left: 180px;
     }
     .login-box h1 {
         font-size: 24px;
@@ -38,6 +40,61 @@ st.markdown("""
         color: #333;
         text-align: center;
     }
+        .login-box label {
+        font-size: 16px;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 8px;
+        color: #555;
+    }
+    .login-box input[type="text"], 
+    .login-box input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    .login-box input:focus {
+        border-color: #6c63ff;
+        outline: none;
+    }
+    .login-box button {
+        background-color: #6c63ff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+    }
+    .login-box button:hover {
+        background-color: #5750d9;
+    }
+    .login-box .extras {
+        font-size: 14px;
+        margin-top: 10px;
+        text-align: center;
+    }
+    .login-box .extras a {
+        color: #6c63ff;
+        text-decoration: none;
+    }
+    .login-box .extras a:hover {
+        text-decoration: underline;
+    }
+    .login-box .remember-me {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+    .login-box .remember-me input {
+        margin-right: 5px;
+    }
+
     </style>
 """, unsafe_allow_html=True)
 
