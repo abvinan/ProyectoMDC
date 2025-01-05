@@ -19,27 +19,29 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+        justify-content: flex-start;
+        align-items: flex-start;
+        height: 4vh;
+        margin-top: 4vh;
     }
     .login-box {
         background: white;
-        padding: 20px 30px;
+        padding: 20px;
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        width: 360px;
+        width: 320px;
         text-align: left;
+        margin-left: 180px;
     }
     .login-box h1 {
-        font-size: 22px;
+        font-size: 24px;
         font-weight: bold;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         color: #333;
         text-align: center;
     }
     .login-box label {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: bold;
         color: #555;
         display: block;
@@ -53,6 +55,7 @@ st.markdown("""
         border: 1px solid #ddd;
         border-radius: 5px;
         font-size: 14px;
+        box-sizing: border-box;
     }
     .login-box input:focus {
         border-color: #6c63ff;
@@ -61,7 +64,7 @@ st.markdown("""
     .login-box button {
         background-color: #6c63ff;
         color: white;
-        padding: 10px;
+        padding: 10px 20px;
         border: none;
         border-radius: 5px;
         font-size: 16px;
@@ -73,7 +76,7 @@ st.markdown("""
     }
     .login-box .extras {
         text-align: center;
-        margin-top: 15px;
+        margin-top: 10px;
         font-size: 14px;
     }
     .login-box .extras a {
@@ -83,8 +86,17 @@ st.markdown("""
     .login-box .extras a:hover {
         text-decoration: underline;
     }
+    .login-box .remember-me {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+    .login-box .remember-me input {
+        margin-right: 5px;
+    }
     </style>
 """, unsafe_allow_html=True)
+
 
 # Función para manejar la autenticación
 def autenticar_usuario():
