@@ -36,6 +36,11 @@ st.markdown("""
         margin-bottom: 15px;
         color: #333;
         text-align: center;
+        border: none; /* Elimina cualquier borde */
+        box-shadow: none; /* Elimina cualquier sombra */
+        background-color: transparent; /* Asegura que el fondo sea transparente */
+        padding: 0; /* Asegura que no haya espacio interno */
+        margin: 0; /* Asegura que no haya espacio externo */
     }
     .login-box label {
         font-size: 16px;
