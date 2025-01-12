@@ -121,6 +121,12 @@ def autenticar_usuario():
             width: 320px;
             text-align: center;
         }
+        .login-box h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
         </style>
         <div class="main-container">
             <div class="login-box">
@@ -149,6 +155,7 @@ def autenticar_usuario():
                 st.success("Inicio de sesión exitoso. Redirigiendo...")
             else:
                 st.error("Usuario o contraseña incorrectos.")
+
 
 
 
