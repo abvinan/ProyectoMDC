@@ -31,16 +31,13 @@ st.markdown("""
         width: 320px;
         text-align: left;
         margin-left: 180 px;
-
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 15px;
         color: #333;
-        text-align: left;
-        margin-left: 1000 px;
-        
+        text-align: center;
     }
     .login-box label {
         font-size: 16px;
