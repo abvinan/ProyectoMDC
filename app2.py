@@ -103,20 +103,21 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Contenedor principal con todo el contenido dentro de la caja
+        # HTML para la estructura de la caja de inicio de sesión
         st.markdown("""
         <div class="main-container">
             <div class="login-box">
                 <h1>Iniciar sesión</h1>
         """, unsafe_allow_html=True)
 
-        # Widgets de Streamlit dentro del HTML
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
-        remember_me = st.checkbox("Recuérdame")
-        iniciar_sesion = st.button("Iniciar Sesión")
+        # Widgets de Streamlit renderizados dentro del diseño
+        with st.container():  # Usamos un contenedor para alinear los widgets
+            username = st.text_input("Usuario", placeholder="Ingrese su usuario", key="username_input")
+            password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", key="password_input")
+            remember_me = st.checkbox("Recuérdame", key="remember_me_checkbox")
+            iniciar_sesion = st.button("Iniciar Sesión", key="login_button")
 
-        # Cerrar el contenedor HTML
+        # HTML para el enlace de "¿Olvidaste tu contraseña?"
         st.markdown("""
                 <div class="extras">
                     <a href="#">¿Olvidaste tu contraseña?</a>
@@ -132,6 +133,7 @@ def autenticar_usuario():
                 st.success("Inicio de sesión exitoso. Redirigiendo...")
             else:
                 st.error("Usuario o contraseña incorrectos.")
+
 
 
 
