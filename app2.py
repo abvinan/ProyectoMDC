@@ -131,8 +131,7 @@ def autenticar_usuario():
   
 
 
-
-# Función para cargar datos
+# Funciones para cargar datos
 @st.cache_data
 def cargar_datos():
     url = 'https://drive.google.com/uc?id=1NmAZBoSj8YqWFbypAm8HYMj2YHbRyggT'
@@ -149,24 +148,57 @@ def cargar_ventas_mensuales():
 
 # Función para filtrar productos por categoría seleccionada
 def filtrar_por_categoria(df, categoria_seleccionada):
-    seccion = secciones.get(categoria_seleccionada)  # Buscar la sección según la categoría
-    if seccion is not None:
-        return df[df['SECCION'] == seccion]  # Filtrar por columna 'SECCION'
-    else:
-        return pd.DataFrame()  # Retornar un DataFrame vacío si no hay coincidencias
+    seccion = secciones.get(categoria_seleccionada)
+    return df[df['SECCION'] == seccion]
 
+# Obtener el top 200 productos más vendidos
+def obtener_top_200_productos(df_categoria):
+    if df_categoria.empty:
+        return pd.DataFrame()
+    else:
+        top_200_productos = df_categoria.groupby('COD_PRODUCTO')['CANTIDAD'].sum().nlargest(200).index
+        return df_categoria[df_categoria['COD_PRODUCTO'].isin(top_200_productos)]
+
+# Preparar datos para entrenar el modelo ALS
+def preparar_datos_para_entrenar(df):
+    if len(df) > 0:
+        df_train, _ = train_test_split(df, test_size=0.3, random_state=42)
+        df_train_compras = df_train.groupby(['COD_FACTURA', 'COD_PRODUCTO'])['CANTIDAD'].sum().unstack().fillna(0)
+        return df_train_compras
+    else:
+        st.error("No hay suficientes datos para dividir en entrenamiento y prueba.")
+        return None
+
+# Entrenar el modelo ALS
+def entrenar_modelo_als(df_train_compras):
+    if df_train_compras is not None:
+        df_train_sparse = csr_matrix(df_train_compras.values)
+        als_model = AlternatingLeastSquares(factors=50, regularization=0.1, iterations=30)
+        als_model.fit(df_train_sparse)
+        return als_model, df_train_sparse
+    else:
+        return None, None
+
+# Generar recomendaciones
+def generar_recomendaciones_seleccionados(df_train_compras, als_model, df_train_sparse, productos_seleccionados_ids):
+    als_recommendations = {}
+    for product_id in productos_seleccionados_ids:
+        try:
+            product_idx = df_train_compras.columns.get_loc(product_id)
+            recommended_products = als_model.recommend(product_idx, df_train_sparse.T, N=6)
+            recommended_products_list = [df_train_compras.columns[i] for i, _ in zip(recommended_products[0], recommended_products[1])]
+            als_recommendations[product_id] = recommended_products_list
+        except KeyError:
+            st.warning(f"El producto con ID {product_id} no se encontró en el modelo.")
+    return als_recommendations
+
+# Configuración del sistema de recomendación
 def sistema_recomendacion():
     st.title("Sistema de Recomendación")
-    
-    # Menú lateral
-    menu_seleccion = st.sidebar.radio(
-        "Seleccione una ventana:", 
-        ["Seleccionar Productos", "Recomendaciones", "Resumen de Combos Seleccionados"]
-    )
-    
-    # Ventana 1: Selección de Productos
+    menu_seleccion = st.sidebar.radio("Seleccione una ventana:", ["Seleccionar Productos", "Recomendaciones", "Resumen de Combos Seleccionados"])
+
     if menu_seleccion == "Seleccionar Productos":
-        st.header("Selecciona los productos para generar las recomendaciones")
+        st.header("Selecciona los Productos para Recomendación")
         categoria_seleccionada = st.selectbox("Seleccione una Categoría", list(secciones.keys()))
         df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
         st.session_state['df_categoria'] = df_categoria
@@ -176,40 +208,33 @@ def sistema_recomendacion():
         productos_seleccionados = st.multiselect("Seleccione hasta 4 productos:", productos_disponibles, max_selections=4)
         st.session_state.productos_seleccionados = productos_seleccionados
 
-    # Ventana 2: Mostrar Combos Recomendados
     elif menu_seleccion == "Recomendaciones":
         st.header("Combos Recomendados")
         if 'productos_seleccionados' in st.session_state and st.session_state.productos_seleccionados:
             df_categoria = st.session_state['df_categoria']
             productos_seleccionados_ids = [df[df['DESC_PRODUCTO'] == nombre]['COD_PRODUCTO'].values[0] for nombre in st.session_state.productos_seleccionados]
-            # Aquí sigue el resto del código para calcular las recomendaciones
-            st.write("Recomendaciones generadas...")
+            df_top_200 = obtener_top_200_productos(df_categoria)
+            df_train_compras = preparar_datos_para_entrenar(df_top_200)
+            modelo_als, df_train_sparse = entrenar_modelo_als(df_train_compras)
+            recomendaciones = generar_recomendaciones_seleccionados(df_train_compras, modelo_als, df_train_sparse, productos_seleccionados_ids)
+            st.write(recomendaciones)
+        else:
+            st.warning("Por favor, seleccione productos en la sección anterior.")
 
-    # Ventana 3: Resumen de Combos Seleccionados
-    elif menu_seleccion == "Resumen de Combos Seleccionados":
-        st.header("Resumen de Combos Seleccionados")
-        # Aquí sigue el resto del código para mostrar el resumen
-        st.write("Resumen generado...")
-
-# Lógica principal: decide si mostrar la autenticación o la aplicación
+# Lógica principal
 if "autenticado" not in st.session_state or not st.session_state["autenticado"]:
     autenticar_usuario()
 else:
-    # Asegurarse de cargar los datos antes de ejecutar el sistema
     if "df" not in st.session_state:
         st.session_state["df"] = cargar_datos()
     if "df_ventas" not in st.session_state:
         st.session_state["df_ventas"] = cargar_ventas_mensuales()
 
-    # Variables globales necesarias
+    df = st.session_state["df"]
     secciones = {
         'Limpieza del Hogar': 14,
         'Cuidado Personal': 16,
         'Bebidas': 24,
         'Alimentos': 25
     }
-
-    df = st.session_state["df"]
-    df_ventas = st.session_state["df_ventas"]
-
-    sistema_recomendacion()  # Inicia la aplicación
+    sistema_recomendacion()
