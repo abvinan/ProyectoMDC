@@ -97,64 +97,45 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Función para manejar la autenticación
 def autenticar_usuario():
     if "autenticado" not in st.session_state:
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # HTML para la estructura de la caja de inicio de sesión
-        st.markdown("""
-        <style>
-        .main-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        .login-box {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            width: 320px;
-            text-align: center;
-        }
-        .login-box h1 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-        }
-        </style>
-        <div class="main-container">
+        st.markdown('<div class="main-container">', unsafe_allow_html=True)
+
+        # Caja de inicio de sesión
+        st.markdown('''
             <div class="login-box">
                 <h1>Iniciar sesión</h1>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
 
-        # Widgets de Streamlit renderizados dentro del diseño
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
-        remember_me = st.checkbox("Recuérdame")
-        iniciar_sesion = st.button("Iniciar Sesión")
+        # Capturar credenciales de usuario
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario", key="username")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", key="password")
 
-        # HTML para el enlace de "¿Olvidaste tu contraseña?"
-        st.markdown("""
-                <div class="extras">
-                    <a href="#" style="text-decoration: none; color: #6c63ff;">¿Olvidaste tu contraseña?</a>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Casilla de "Recuérdame"
+        remember_me = st.checkbox("Recuérdame", key="remember_me")
 
-        # Lógica de autenticación
-        if iniciar_sesion:
+        # Botón para iniciar sesión
+        if st.button("Iniciar Sesión"):
             if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
                 st.session_state["autenticado"] = True
-                st.success("Inicio de sesión exitoso. Redirigiendo...")
+                st.experimental_rerun()  # Refresca la página tras autenticar
             else:
                 st.error("Usuario o contraseña incorrectos.")
+
+        # Enlace de "¿Olvidaste tu contraseña?"
+        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
+
+        # Cerrar caja de inicio de sesión
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de .login-box
+
+        # Cerrar contenedor principal
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de .main-container
+
+    return st.session_state["autenticado"]
+
 
 
 
