@@ -9,6 +9,11 @@ from sklearn.model_selection import train_test_split
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
+import streamlit as st
+
+# AUTENTICACIÓN
+USER_CREDENTIALS = {"username": "admin", "password": "password123"}
+
 # CSS para ajustar el diseño de la ventana de inicio de sesión
 st.markdown("""
     <style>
@@ -19,41 +24,39 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: flex-start;
-        align-items: flex-start;
-        height: 4vh;
-        margin-top: 4vh;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
     .login-box {
         background: white;
         padding: 20px;
         border-radius: 10px;
         width: 320px;
-        text-align: left;
-        margin-left: 180 px;
+        text-align: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 15px;
         color: #333;
-        text-align: center;
     }
     .login-box label {
-        font-size: 22px !important;
+        font-size: 18px;
         font-weight: bold;
         color: #555;
         display: block;
         margin-bottom: 8px;
+        text-align: left;
     }
-    .login-box input[type="text"], 
-    .login-box input[type="password"] {
+    .login-box input {
         width: 100%;
         padding: 10px;
         margin-bottom: 15px;
         border: 1px solid #ddd;
         border-radius: 5px;
-        font-size: 18px;
+        font-size: 16px;
         box-sizing: border-box;
     }
     .login-box input:focus {
@@ -66,7 +69,7 @@ st.markdown("""
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
-        font-size: 18px;
+        font-size: 16px;
         cursor: pointer;
         width: 100%;
     }
@@ -76,7 +79,7 @@ st.markdown("""
     .login-box .extras {
         text-align: center;
         margin-top: 10px;
-        font-size: 18px;
+        font-size: 14px;
     }
     .login-box .extras a {
         color: #6c63ff;
@@ -85,60 +88,53 @@ st.markdown("""
     .login-box .extras a:hover {
         text-decoration: underline;
     }
-    .login-box .remember-me {
-        display: flex;
-        align-items: center;
-        font-size: 18px;
-    }
-    .login-box .remember-me input {
-        margin-right: 5px;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-
-st.markdown("""
-    <div class="login-box">
-        <label for="username" style="font-size: 22px; font-weight: bold; color: #555;">Usuario</label>
-        <input id="username" type="text" placeholder="Ingrese su usuario" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 18px;">
-        <label for="password" style="font-size: 22px; font-weight: bold; color: #555;">Contraseña</label>
-        <input id="password" type="password" placeholder="Ingrese su contraseña" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 18px;">
-    </div>
-""", unsafe_allow_html=True)
-
-
-# Función para manejar la autenticación
+# Función para manejar la autenticación usando solo HTML
 def autenticar_usuario():
     if "autenticado" not in st.session_state:
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Contenedor principal
-        st.markdown('<div class="main-container">', unsafe_allow_html=True)
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
+        st.markdown("""
+            <div class="main-container">
+                <div class="login-box">
+                    <h1>Iniciar sesión</h1>
+                    <form action="" method="post">
+                        <label for="username">Usuario</label>
+                        <input id="username" name="username" type="text" placeholder="Ingrese su usuario">
+                        
+                        <label for="password">Contraseña</label>
+                        <input id="password" name="password" type="password" placeholder="Ingrese su contraseña">
+                        
+                        <button type="submit">Iniciar Sesión</button>
+                        
+                        <div class="extras">
+                            <a href="#">¿Olvidaste tu contraseña?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
 
-        # Capturar credenciales de usuario y contraseña
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+        # Procesar la autenticación
+        submitted = st.experimental_get_query_params()
+        username = submitted.get("username", [""])[0]
+        password = submitted.get("password", [""])[0]
 
-        # Casilla de "Recuérdame"
-        remember_me = st.checkbox("Recuérdame")
+        if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
+            st.session_state["autenticado"] = True
+            st.experimental_rerun()
+        elif username or password:
+            st.error("Usuario o contraseña incorrectos.")
 
-        # Botón para iniciar sesión
-        if st.button("Iniciar Sesión"):
-            if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
-                st.session_state["autenticado"] = True
-                st.success("Inicio de sesión exitoso. Redirigiendo...")
-            else:
-                st.error("Usuario o contraseña incorrectos.")
+# Llamar a la función de autenticación
+autenticar_usuario()
 
-        # Enlace de "¿Olvidaste tu contraseña?"
-        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
-
-        # Cerrar contenedores
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+# Contenido de la aplicación después de la autenticación
+if st.session_state["autenticado"]:
+    st.markdown("<h1>¡Bienvenido a la aplicación!</h1>", unsafe_allow_html=True)
 
 
   
