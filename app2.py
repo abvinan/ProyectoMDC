@@ -22,7 +22,7 @@ st.markdown("""
         justify-content: flex-start;
         align-items: flex-start;
         height: 4vh;
-        margin-top: 0;
+        margin-top: 4vh;
     }
     .login-box {
         background: white;
