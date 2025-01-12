@@ -6,7 +6,7 @@ from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 from sklearn.model_selection import train_test_split
 
-# AUTENTICACIÓN
+# AUTENTICACIÓN 
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
 # CSS para ajustar la posición y tamaño del cuadro
@@ -19,33 +19,31 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: flex-start; /* Cambia el centrado horizontal a la izquierda */
-        align-items: flex-start; /* Centrado vertical en la parte superior */
-        height: 4vh; /* Altura de la pantalla */
-        margin-top: 4vh; /* Ajusta el desplazamiento desde arriba */
-}
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center;    /* Centra verticalmente */
+        min-height: 100vh;      /* Ocupa toda la altura de la pantalla */
+    }
     .login-box {
         background: white;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        width: 320px; /* Tamaño fijo para evitar crecimiento */
-        text-align: left; /* Texto alineado a la izquierda */
-        margin-left: 180px; 
+        width: 320px;
+        text-align: center;
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 15px;
         color: #333;
-        text-align: center; /* Centrar el título */
     }
     .login-box label {
         font-size: 16px;
         font-weight: bold;
+        color: #555;
         display: block;
         margin-bottom: 8px;
-        color: #555;
+        text-align: left;
     }
     .login-box input[type="text"], 
     .login-box input[type="password"] {
@@ -75,9 +73,9 @@ st.markdown("""
         background-color: #5750d9;
     }
     .login-box .extras {
-        font-size: 14px;
-        margin-top: 10px;
         text-align: center;
+        margin-top: 10px;
+        font-size: 14px;
     }
     .login-box .extras a {
         color: #6c63ff;
@@ -99,43 +97,45 @@ st.markdown("""
 
 # Función para manejar la autenticación
 def autenticar_usuario():
-    st.markdown('<div class="main-container">', unsafe_allow_html=True)
-    st.markdown('''
-        <div class="login-box">
-            <h1>Iniciar sesión</h1>
-            <form>
-                <label for="username">Usuario</label>
-                <input id="username" type="text" placeholder="Ingrese su usuario">
-                <label for="password">Contraseña</label>
-                <input id="password" type="password" placeholder="Ingrese su contraseña">
-                <div class="remember-me">
-                    <input type="checkbox" id="remember">
-                    <label for="remember">Recuérdame</label>
-                </div>
-                <button type="submit">Iniciar Sesión</button>
-                <div class="extras">
-                    <a href="#">¿Olvidaste tu contraseña?</a>
-                </div>
-            </form>
-        </div>
-    ''', unsafe_allow_html=True)
-    return st.session_state.get("autenticado", False)
+    if "autenticado" not in st.session_state:
+        st.session_state["autenticado"] = False
+
+    if not st.session_state["autenticado"]:
+        st.markdown('<div class="main-container">', unsafe_allow_html=True)
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+
+        st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
+
+        # Capturar credenciales de usuario y contraseña usando widgets Streamlit
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario", key="username")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", key="password")
+        remember_me = st.checkbox("Recuérdame", key="remember_me")
+
+        # Botón para iniciar sesión
+        if st.button("Iniciar Sesión"):
+            if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
+                st.session_state["autenticado"] = True
+                st.experimental_rerun()  # Refresca la página para pasar al contenido principal
+            else:
+                st.error("Usuario o contraseña incorrectos.")
+
+        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierra login-box
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierra main-container
+        return False
+    else:
+        return True
 
 # Inicializar estado de autenticación
-if "autenticado" not in st.session_state:
-    st.session_state["autenticado"] = False
-
-# Llamar a la función de autenticación
 autenticado = autenticar_usuario()
 
-# Detener la aplicación si no está autenticado
-if not autenticado:
-    st.stop()
+# Mostrar contenido principal solo si está autenticado
+if autenticado:
+    # Código principal de la aplicación
+    st.title("Bienvenido a la Aplicación de Recomendación")
+    st.write("¡La aplicación está funcionando correctamente!")
 
-# Código principal de la aplicación
-st.title("Bienvenido a la Aplicación de Recomendación")
-st.write("¡La aplicación está funcionando correctamente!")
- 
 
 
 # Función para cargar datos
