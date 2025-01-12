@@ -9,75 +9,115 @@ from sklearn.model_selection import train_test_split
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
+# CSS para ajustar el diseño de la ventana de inicio de sesión
+st.markdown("""
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .main-container {
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        height: 4vh;
+        margin-top: 4vh;
+    }
+    .login-box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        width: 320px;
+        text-align: left;
+        margin-left: 180px;
+    }
+    .login-box h1 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #333;
+        text-align: center;
+    }
+    .login-box label {
+        font-size: 16px;
+        font-weight: bold;
+        color: #555;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .login-box input[type="text"], 
+    .login-box input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+    .login-box input:focus {
+        border-color: #6c63ff;
+        outline: none;
+    }
+    .login-box button {
+        background-color: #6c63ff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        width: 100%;
+    }
+    .login-box button:hover {
+        background-color: #5750d9;
+    }
+    .login-box .extras {
+        text-align: center;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    .login-box .extras a {
+        color: #6c63ff;
+        text-decoration: none;
+    }
+    .login-box .extras a:hover {
+        text-decoration: underline;
+    }
+    .login-box .remember-me {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+    }
+    .login-box .remember-me input {
+        margin-right: 5px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
+# Función para manejar la autenticación
 def autenticar_usuario():
     if "autenticado" not in st.session_state:
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # CSS para ajustar el diseño
-        st.markdown('''
-            <style>
-                body {
-                    margin: 0;
-                    padding: 0;
-                    background-color: #f4f4f4;
-                }
-                .main-container {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    min-height: 100vh; /* Asegura que ocupe toda la pantalla */
-                    background-color: #f4f4f4;
-                }
-                .login-box {
-                    background: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-                    width: 320px;
-                    text-align: center;
-                }
-                .login-box h1 {
-                    font-size: 24px;
-                    font-weight: bold;
-                    margin-bottom: 20px;
-                    color: #333;
-                }
-                .login-box .stTextInput,
-                .login-box .stButton,
-                .login-box .stCheckbox {
-                    margin-bottom: 15px;
-                }
-                .login-box .extras {
-                    margin-top: 10px;
-                    font-size: 14px;
-                }
-                .login-box .extras a {
-                    color: #6c63ff;
-                    text-decoration: none;
-                }
-                .login-box .extras a:hover {
-                    text-decoration: underline;
-                }
-            </style>
-        ''', unsafe_allow_html=True)
-
         # Contenedor principal
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
-
-        # Título
         st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
-        # Campos de entrada y botón
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario", label_visibility="collapsed")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", label_visibility="collapsed")
+        # Capturar credenciales de usuario y contraseña
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+
+        # Casilla de "Recuérdame"
         remember_me = st.checkbox("Recuérdame")
 
         # Botón para iniciar sesión
         if st.button("Iniciar Sesión"):
-            if username == "admin" and password == "password123":
+            if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
                 st.session_state["autenticado"] = True
                 st.success("Inicio de sesión exitoso. Redirigiendo...")
             else:
@@ -86,22 +126,9 @@ def autenticar_usuario():
         # Enlace de "¿Olvidaste tu contraseña?"
         st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
 
-        # Cerrar los contenedores
-        st.markdown('</div>', unsafe_allow_html=True)  # .login-box
-        st.markdown('</div>', unsafe_allow_html=True)  # .main-container
-
-# Inicializar el estado de autenticación
-if "autenticado" not in st.session_state:
-    st.session_state["autenticado"] = False
-
-# Llamar a la función de autenticación
-autenticar_usuario()
-
-# Mostrar contenido solo si está autenticado
-if st.session_state["autenticado"]:
-    st.title("Bienvenido a la Aplicación de Recomendación")
-    st.write("¡La aplicación está funcionando correctamente!")
-
+        # Cerrar contenedores
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 
