@@ -97,24 +97,22 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-
-
 # Función para manejar la autenticación
 def autenticar_usuario():
     if "autenticado" not in st.session_state:
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        st.write("")  # Borra cualquier contenido residual
+        # Contenedor principal
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        # Código del formulario de inicio de sesión
-        st.markdown('</div>', unsafe_allow_html=True)  # Cierre del contenedor .login-box
-        st.markdown('</div>', unsafe_allow_html=True)  # Cierre del contenedor .main-container
-        st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
+        # Caja de inicio de sesión
+        st.markdown('''
+            <div class="login-box">
+                <h1>Iniciar sesión</h1>
+        ''', unsafe_allow_html=True)
 
-        # Capturar credenciales de usuario y contraseña
+        # Capturar credenciales de usuario
         username = st.text_input("Usuario", placeholder="Ingrese su usuario")
         password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
 
@@ -132,9 +130,14 @@ def autenticar_usuario():
         # Enlace de "¿Olvidaste tu contraseña?"
         st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
 
-        # Cerrar contenedores
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        # Cerrar caja de inicio de sesión
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de .login-box
+
+        # Cerrar contenedor principal
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de .main-container
+
+    return st.session_state["autenticado"]
+
 
 
 
