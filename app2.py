@@ -157,8 +157,7 @@ def filtrar_por_categoria(df, categoria_seleccionada):
 
 def sistema_recomendacion():
     st.title("Sistema de Recomendación")
-    st.write("¡La aplicación está funcionando correctamente!")
-
+    
     # Menú lateral
     menu_seleccion = st.sidebar.radio(
         "Seleccione una ventana:", 
