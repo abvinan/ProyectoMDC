@@ -6,6 +6,8 @@ from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 from sklearn.model_selection import train_test_split
 
+# AUTENTICACIÓN
+USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
 # CSS para ajustar el diseño de la ventana de inicio de sesión
 st.markdown("""
