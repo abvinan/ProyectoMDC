@@ -111,9 +111,6 @@ def autenticar_usuario():
         username = st.text_input("Usuario", placeholder="Ingrese su usuario")
         password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
 
-        # Casilla de "Recuérdame"
-        remember_me = st.checkbox("Recuérdame")
-
         # Botón para iniciar sesión
         if st.button("Iniciar Sesión"):
             if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
@@ -122,14 +119,9 @@ def autenticar_usuario():
             else:
                 st.error("Usuario o contraseña incorrectos.")
 
-        # Enlace de "¿Olvidaste tu contraseña?"
-        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
-
         # Cerrar contenedores
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-  
-
 
 # Funciones para cargar datos
 @st.cache_data
