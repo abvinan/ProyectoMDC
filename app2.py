@@ -19,9 +19,10 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: center; /* Centrar horizontalmente */
-        align-items: center; /* Centrar verticalmente */
-        height: 100vh; /* Altura completa de la ventana */
+        justify-content: flex-start;
+        align-items: flex-start;
+        height: 4vh;
+        margin-top: 4vh;
     }
     .login-box {
         background: white;
@@ -30,6 +31,7 @@ st.markdown("""
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px;
         text-align: left;
+        margin-left: 180px;
     }
     .login-box h1 {
         font-size: 24px;
