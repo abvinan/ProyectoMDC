@@ -96,16 +96,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-    <style>
-    .test-label {
-        font-size: 24px !important;
-        font-weight: bold;
-        color: red;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 st.markdown('<label class="test-label">Usuario</label>', unsafe_allow_html=True)
 st.text_input("Usuario", placeholder="Ingrese su usuario")
 
