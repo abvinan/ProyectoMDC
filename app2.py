@@ -9,7 +9,6 @@ from sklearn.model_selection import train_test_split
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
-
 # CSS para ajustar el diseño de la ventana de inicio de sesión
 st.markdown("""
     <style>
@@ -20,10 +19,9 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: flex-start;
-        align-items: flex-start;
-        height: 4vh;
-        margin-top: 4vh;
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center;    /* Centra verticalmente */
+        min-height: 100vh;      /* Ocupa toda la altura de la pantalla */
     }
     .login-box {
         background: white;
@@ -31,15 +29,13 @@ st.markdown("""
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px;
-        text-align: left;
-        margin-left: 180px;
+        text-align: center;
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
-        margin-bottom: 15px;
+        margin-bottom: 15px; /* Ajustar espacio inferior */
         color: #333;
-        text-align: center;
     }
     .login-box label {
         font-size: 16px;
@@ -47,6 +43,7 @@ st.markdown("""
         color: #555;
         display: block;
         margin-bottom: 8px;
+        text-align: left;
     }
     .login-box input[type="text"], 
     .login-box input[type="password"] {
@@ -107,6 +104,8 @@ def autenticar_usuario():
         # Contenedor principal
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
+
+        # Encabezado
         st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
         # Capturar credenciales de usuario y contraseña
@@ -118,7 +117,7 @@ def autenticar_usuario():
 
         # Botón para iniciar sesión
         if st.button("Iniciar Sesión"):
-            if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
+            if username == "admin" and password == "password123":  # Sustituye con tus credenciales
                 st.session_state["autenticado"] = True
                 st.success("Inicio de sesión exitoso. Redirigiendo...")
             else:
@@ -128,9 +127,30 @@ def autenticar_usuario():
         st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
 
         # Cerrar contenedores
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de login-box
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de main-container
+        return False
+    else:
+        return True
 
+# Inicializar estado de autenticación
+if "autenticado" not in st.session_state:
+    st.session_state["autenticado"] = False
+
+# Llamar a la función de autenticación
+autenticado = autenticar_usuario()
+
+# Detener la aplicación si no está autenticado
+if not autenticado:
+    st.stop()
+
+# Código principal de la aplicación (una vez autenticado)
+st.title("Bienvenido a la Aplicación de Recomendación")
+st.write("¡La aplicación está funcionando correctamente!")
+
+
+
+ 
 
 
 # Función para cargar datos
