@@ -30,8 +30,8 @@ st.markdown("""
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 500px;
-        text-align: center;
-        margin-left: auto;
+        text-align: left;
+        margin-left: 180px;
     }
     .login-box h1 {
         font-size: 24px;
