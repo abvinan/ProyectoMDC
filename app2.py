@@ -103,12 +103,11 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
+        # Contenedor principal con todo el formulario
         st.markdown('''
             <div class="main-container">
                 <div class="login-box">
                     <h1>Iniciar sesión</h1>
-                </div>
-            </div>
         ''', unsafe_allow_html=True)
 
         # Capturar credenciales de usuario y contraseña
@@ -127,7 +126,16 @@ def autenticar_usuario():
                 st.error("Usuario o contraseña incorrectos.")
 
         # Enlace de "¿Olvidaste tu contraseña?"
-        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
+        st.markdown('''
+                    <div class="extras">
+                        <a href="#">¿Olvidaste tu contraseña?</a>
+                    </div>
+                </div> <!-- Cierre de login-box -->
+            </div> <!-- Cierre de main-container -->
+        ''', unsafe_allow_html=True)
+
+        st.stop()  # Detiene la ejecución si no está autenticado
+
 
 
 
