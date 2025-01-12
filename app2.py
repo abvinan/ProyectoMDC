@@ -39,7 +39,7 @@ st.markdown("""
         margin-bottom: 15px;
         color: #333;
         text-align: left;
-        margin-left: 250px;
+        margin-left: 500px;
     }
     .login-box label {
         font-size: 16px;
