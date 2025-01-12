@@ -53,7 +53,7 @@ st.markdown("""
         margin-bottom: 15px;
         border: 1px solid #ddd;
         border-radius: 5px;
-        font-size: 14px;
+        font-size: 18px;
         box-sizing: border-box;
     }
     .login-box input:focus {
