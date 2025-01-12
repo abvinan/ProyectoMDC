@@ -96,9 +96,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<label class="test-label">Usuario</label>', unsafe_allow_html=True)
-st.text_input("Usuario", placeholder="Ingrese su usuario")
-
 
 # Función para manejar la autenticación
 def autenticar_usuario():
