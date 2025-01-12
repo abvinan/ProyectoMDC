@@ -11,23 +11,9 @@ USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
 import streamlit as st
 
-# AUTENTICACIÓN
-USER_CREDENTIALS = {"username": "admin", "password": "password123"}
-
-# CSS para ajustar el diseño de la ventana de inicio de sesión
+# CSS para diseño
 st.markdown("""
     <style>
-    body {
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-    }
-    .main-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
     .login-box {
         background: white;
         padding: 20px;
@@ -35,20 +21,8 @@ st.markdown("""
         width: 320px;
         text-align: center;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-    .login-box h1 {
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 15px;
-        color: #333;
-    }
-    .login-box label {
-        font-size: 18px;
-        font-weight: bold;
-        color: #555;
-        display: block;
-        margin-bottom: 8px;
-        text-align: left;
+        margin: auto;
+        margin-top: 50px;
     }
     .login-box input {
         width: 100%;
@@ -76,65 +50,38 @@ st.markdown("""
     .login-box button:hover {
         background-color: #5750d9;
     }
-    .login-box .extras {
-        text-align: center;
-        margin-top: 10px;
-        font-size: 14px;
-    }
-    .login-box .extras a {
-        color: #6c63ff;
-        text-decoration: none;
-    }
-    .login-box .extras a:hover {
-        text-decoration: underline;
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# Función para manejar la autenticación usando solo HTML
+# Contenedor para manejar la autenticación
 def autenticar_usuario():
-    if "autenticado" not in st.session_state:
-        st.session_state["autenticado"] = False
+    st.markdown('<div class="login-box">', unsafe_allow_html=True)
+    st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
-    if not st.session_state["autenticado"]:
-        st.markdown("""
-            <div class="main-container">
-                <div class="login-box">
-                    <h1>Iniciar sesión</h1>
-                    <form action="" method="post">
-                        <label for="username">Usuario</label>
-                        <input id="username" name="username" type="text" placeholder="Ingrese su usuario">
-                        
-                        <label for="password">Contraseña</label>
-                        <input id="password" name="password" type="password" placeholder="Ingrese su contraseña">
-                        
-                        <button type="submit">Iniciar Sesión</button>
-                        
-                        <div class="extras">
-                            <a href="#">¿Olvidaste tu contraseña?</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+    # Campos de entrada usando Streamlit
+    username = st.text_input("Usuario", key="username")
+    password = st.text_input("Contraseña", type="password", key="password")
 
-        # Procesar la autenticación
-        submitted = st.experimental_get_query_params()
-        username = submitted.get("username", [""])[0]
-        password = submitted.get("password", [""])[0]
-
-        if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
+    # Botón de inicio de sesión
+    if st.button("Iniciar Sesión"):
+        if username == "admin" and password == "password123":
             st.session_state["autenticado"] = True
-            st.experimental_rerun()
-        elif username or password:
+            st.success("Inicio de sesión exitoso.")
+        else:
             st.error("Usuario o contraseña incorrectos.")
 
-# Llamar a la función de autenticación
-autenticar_usuario()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Contenido de la aplicación después de la autenticación
-if st.session_state["autenticado"]:
+# Estado inicial
+if "autenticado" not in st.session_state:
+    st.session_state["autenticado"] = False
+
+# Llamar a la función
+if not st.session_state["autenticado"]:
+    autenticar_usuario()
+else:
     st.markdown("<h1>¡Bienvenido a la aplicación!</h1>", unsafe_allow_html=True)
+
 
 
   
