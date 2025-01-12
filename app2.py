@@ -40,7 +40,7 @@ st.markdown("""
         text-align: center;
     }
     .login-box label {
-        font-size: 16px;
+        font-size: 18px;
         font-weight: bold;
         color: #555;
         display: block;
@@ -66,7 +66,7 @@ st.markdown("""
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
-        font-size: 16px;
+        font-size: 18px;
         cursor: pointer;
         width: 100%;
     }
@@ -76,7 +76,7 @@ st.markdown("""
     .login-box .extras {
         text-align: center;
         margin-top: 10px;
-        font-size: 14px;
+        font-size: 18px;
     }
     .login-box .extras a {
         color: #6c63ff;
@@ -88,7 +88,7 @@ st.markdown("""
     .login-box .remember-me {
         display: flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 18px;
     }
     .login-box .remember-me input {
         margin-right: 5px;
