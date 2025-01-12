@@ -29,8 +29,8 @@ st.markdown("""
         padding: 20px;
         border-radius: 10px;
         width: 320px;
-        text-align: center;
-        margin-left: 180px;
+        text-align: left;
+        margin-left: 250px;
 
     }
     .login-box h1 {
