@@ -105,22 +105,38 @@ def autenticar_usuario():
     if not st.session_state["autenticado"]:
         # HTML para la estructura de la caja de inicio de sesión
         st.markdown("""
+        <style>
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .login-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 320px;
+            text-align: center;
+        }
+        </style>
         <div class="main-container">
             <div class="login-box">
                 <h1>Iniciar sesión</h1>
         """, unsafe_allow_html=True)
 
         # Widgets de Streamlit renderizados dentro del diseño
-        with st.container():  # Usamos un contenedor para alinear los widgets
-            username = st.text_input("Usuario", placeholder="Ingrese su usuario", key="username_input")
-            password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", key="password_input")
-            remember_me = st.checkbox("Recuérdame", key="remember_me_checkbox")
-            iniciar_sesion = st.button("Iniciar Sesión", key="login_button")
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+        remember_me = st.checkbox("Recuérdame")
+        iniciar_sesion = st.button("Iniciar Sesión")
 
         # HTML para el enlace de "¿Olvidaste tu contraseña?"
         st.markdown("""
                 <div class="extras">
-                    <a href="#">¿Olvidaste tu contraseña?</a>
+                    <a href="#" style="text-decoration: none; color: #6c63ff;">¿Olvidaste tu contraseña?</a>
                 </div>
             </div>
         </div>
