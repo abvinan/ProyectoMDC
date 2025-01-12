@@ -128,10 +128,6 @@ def autenticar_usuario():
         # Cerrar contenedores
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
-
-
-
-
   
 
 
@@ -160,7 +156,7 @@ def filtrar_por_categoria(df, categoria_seleccionada):
         return pd.DataFrame()  # Retornar un DataFrame vacío si no hay coincidencias
 
 def sistema_recomendacion():
-    st.title("Bienvenido a la Aplicación de Recomendación")
+    st.title("Sistema de Recomendación")
     st.write("¡La aplicación está funcionando correctamente!")
 
     # Menú lateral
