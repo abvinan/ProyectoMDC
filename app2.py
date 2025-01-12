@@ -40,7 +40,7 @@ st.markdown("""
         text-align: center;
     }
     .login-box label {
-        font-size: 22px;
+        font-size: 22px !important;
         font-weight: bold;
         color: #555;
         display: block;
