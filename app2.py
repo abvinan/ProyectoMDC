@@ -9,19 +9,25 @@ from sklearn.model_selection import train_test_split
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
+
 def autenticar_usuario():
     if "autenticado" not in st.session_state:
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # CSS para la estructura
+        # CSS para ajustar el diseño
         st.markdown('''
             <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f4f4f4;
+                }
                 .main-container {
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    height: 100vh;
+                    min-height: 100vh; /* Asegura que ocupe toda la pantalla */
                     background-color: #f4f4f4;
                 }
                 .login-box {
