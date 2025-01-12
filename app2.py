@@ -96,17 +96,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-
-st.markdown("""
-    <div class="login-box">
-        <label for="username" style="font-size: 22px; font-weight: bold; color: #555;">Usuario</label>
-        <input id="username" type="text" placeholder="Ingrese su usuario" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 18px;">
-        <label for="password" style="font-size: 22px; font-weight: bold; color: #555;">Contraseña</label>
-        <input id="password" type="password" placeholder="Ingrese su contraseña" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 18px;">
-    </div>
-""", unsafe_allow_html=True)
-
-
 # Función para manejar la autenticación
 def autenticar_usuario():
     if "autenticado" not in st.session_state:
