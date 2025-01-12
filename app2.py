@@ -166,7 +166,7 @@ def sistema_recomendacion():
     
     # Ventana 1: Selección de Productos
     if menu_seleccion == "Seleccionar Productos":
-        st.header("Selecciona los Productos para Recomendación")
+        st.header("Selecciona los productos para generar las recomendaciones")
         categoria_seleccionada = st.selectbox("Seleccione una Categoría", list(secciones.keys()))
         df_categoria = filtrar_por_categoria(df, categoria_seleccionada)
         st.session_state['df_categoria'] = df_categoria
