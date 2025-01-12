@@ -97,44 +97,50 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Función para manejar la autenticación
 def autenticar_usuario():
     if "autenticado" not in st.session_state:
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Contenedor principal con todo el formulario
+        # HTML y CSS: Incluir todos los elementos dentro del contenedor principal
         st.markdown('''
             <div class="main-container">
                 <div class="login-box">
                     <h1>Iniciar sesión</h1>
+                    <form>
+                        <label for="username">Usuario:</label>
+                        <input id="username" type="text" placeholder="Ingrese su usuario">
+                        <label for="password">Contraseña:</label>
+                        <input id="password" type="password" placeholder="Ingrese su contraseña">
+                        <div class="remember-me">
+                            <input type="checkbox" id="remember">
+                            <label for="remember">Recuérdame</label>
+                        </div>
+                        <button type="button" onclick="submitForm()">Iniciar Sesión</button>
+                        <div class="extras">
+                            <a href="#">¿Olvidaste tu contraseña?</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <script>
+                function submitForm() {
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+                    if (username === 'admin' && password === 'password123') {
+                        // Simular autenticación exitosa
+                        Streamlit.setComponentValue(true);
+                    } else {
+                        alert('Usuario o contraseña incorrectos.');
+                    }
+                }
+            </script>
         ''', unsafe_allow_html=True)
 
-        # Capturar credenciales de usuario y contraseña
-        username = st.text_input("Usuario:", placeholder="Ingrese su usuario", key="username_input")
-        password = st.text_input("Contraseña:", type="password", placeholder="Ingrese su contraseña", key="password_input")
+        # Manejar la autenticación en Python
+        if st.session_state.get("autenticado"):
+         
 
-        # Casilla de "Recuérdame"
-        remember_me = st.checkbox("Recuérdame", key="remember_me_checkbox")
-
-        # Botón para iniciar sesión
-        if st.button("Iniciar Sesión", key="login_button"):
-            if username == "admin" and password == "password123":
-                st.session_state["autenticado"] = True
-                st.success("Inicio de sesión exitoso. Redirigiendo...")
-            else:
-                st.error("Usuario o contraseña incorrectos.")
-
-        # Enlace de "¿Olvidaste tu contraseña?"
-        st.markdown('''
-                    <div class="extras">
-                        <a href="#">¿Olvidaste tu contraseña?</a>
-                    </div>
-                </div> <!-- Cierre de login-box -->
-            </div> <!-- Cierre de main-container -->
-        ''', unsafe_allow_html=True)
-
-        st.stop()  # Detiene la ejecución si no está autenticado
 
 
 
