@@ -26,12 +26,12 @@ st.markdown("""
     }
     .login-box {
         background: white;
-        padding: 20px;
+        padding: 10px;
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        width: 320px;
-        text-align: left;
-        margin-left: 180px;
+        width: 250px;
+        text-align: center;
+        margin-left: auto;
     }
     .login-box h1 {
         font-size: 24px;
@@ -103,7 +103,6 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Contenedor principal
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
         # Caja de inicio de sesión
@@ -113,17 +112,17 @@ def autenticar_usuario():
         ''', unsafe_allow_html=True)
 
         # Capturar credenciales de usuario
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario", key="username")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", key="password")
 
         # Casilla de "Recuérdame"
-        remember_me = st.checkbox("Recuérdame")
+        remember_me = st.checkbox("Recuérdame", key="remember_me")
 
         # Botón para iniciar sesión
         if st.button("Iniciar Sesión"):
             if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
                 st.session_state["autenticado"] = True
-                st.success("Inicio de sesión exitoso. Redirigiendo...")
+                st.experimental_rerun()  # Refresca la página tras autenticar
             else:
                 st.error("Usuario o contraseña incorrectos.")
 
