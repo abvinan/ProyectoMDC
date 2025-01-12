@@ -21,6 +21,13 @@ st.markdown("""
         height: 4vh;
         margin-top: 4vh;
     }
+    .main-container div:first-child {
+        border: 1px solid white; /* Cambia el borde a blanco */
+        background-color: white; /* Cambia el fondo a blanco */
+        height: 0; /* Opcional: Elimina su altura */
+        margin: 0;
+        padding: 0;
+    }
     .login-box {
         background: white;
         padding: 20px;
