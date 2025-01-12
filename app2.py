@@ -103,30 +103,20 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Contenedor principal con HTML completo
         st.markdown('''
             <div class="main-container">
                 <div class="login-box">
                     <h1>Iniciar sesión</h1>
-                    <form action="#" method="post">
-                        <!-- Campo de Usuario -->
+                    <form>
                         <label for="username">Usuario</label>
                         <input id="username" type="text" placeholder="Ingrese su usuario">
-                        
-                        <!-- Campo de Contraseña -->
                         <label for="password">Contraseña</label>
                         <input id="password" type="password" placeholder="Ingrese su contraseña">
-                        
-                        <!-- Casilla de "Recuérdame" -->
                         <div class="remember-me">
                             <input type="checkbox" id="remember">
                             <label for="remember">Recuérdame</label>
                         </div>
-                        
-                        <!-- Botón de Inicio de Sesión -->
                         <button type="button" id="login-button">Iniciar Sesión</button>
-                        
-                        <!-- Enlace de "¿Olvidaste tu contraseña?" -->
                         <div class="extras">
                             <a href="#">¿Olvidaste tu contraseña?</a>
                         </div>
@@ -134,20 +124,29 @@ def autenticar_usuario():
                 </div>
             </div>
         ''', unsafe_allow_html=True)
-        
-        # Logica para autenticar al usuario (no se incluye dentro del contenedor HTML)
+
+        # Simulación de entrada conectada a Streamlit
         username = st.text_input("Usuario", placeholder="Ingrese su usuario", label_visibility="hidden")
         password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", label_visibility="hidden")
-        
+
+        # Botón para autenticar
         if st.button("Iniciar Sesión"):
-            if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
+            if username == "admin" and password == "password123":
                 st.session_state["autenticado"] = True
-                st.success("Inicio de sesión exitoso. Redirigiendo...")
+                st.success("Inicio de sesión exitoso")
             else:
-                st.error("Usuario o contraseña incorrectos.")
+                st.error("Usuario o contraseña incorrectos")
 
+# Inicializar estado de autenticación
+if "autenticado" not in st.session_state:
+    st.session_state["autenticado"] = False
 
+# Llamar a la función de autenticación
+autenticar_usuario()
 
+if st.session_state["autenticado"]:
+    st.title("Bienvenido a la Aplicación de Recomendación")
+    st.write("¡La aplicación está funcionando correctamente!")
 
 
 
