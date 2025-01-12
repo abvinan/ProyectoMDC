@@ -6,7 +6,6 @@ from scipy.sparse import csr_matrix
 from implicit.als import AlternatingLeastSquares
 from sklearn.model_selection import train_test_split
 
-import streamlit as st
 
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
@@ -52,15 +51,15 @@ def autenticar_usuario():
         st.markdown('<div class="main-container"><div class="login-box">', unsafe_allow_html=True)
         st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
-        # Campos de entrada de usuario y contraseña
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+        # Campos de entrada de usuario y contraseña con claves únicas
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario", key="login_username")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", key="login_password")
 
         # Casilla "Recuérdame"
-        remember_me = st.checkbox("Recuérdame")
+        remember_me = st.checkbox("Recuérdame", key="login_remember_me")
 
         # Botón de inicio de sesión
-        if st.button("Iniciar Sesión"):
+        if st.button("Iniciar Sesión", key="login_button"):
             if username == USER_CREDENTIALS["username"] and password == USER_CREDENTIALS["password"]:
                 st.session_state["autenticado"] = True
                 st.experimental_rerun()  # Refresca la página para avanzar a la siguiente ventana
