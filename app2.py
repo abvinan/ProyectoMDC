@@ -34,7 +34,7 @@ st.markdown("""
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
-        margin-bottom: 15px; /* Ajustar espacio inferior */
+        margin-bottom: 15px;
         color: #333;
     }
     .login-box label {
@@ -109,11 +109,11 @@ def autenticar_usuario():
         st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
         # Capturar credenciales de usuario y contraseña
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+        username = st.text_input("Usuario", placeholder="Ingrese su usuario", key="username")
+        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", key="password")
 
         # Casilla de "Recuérdame"
-        remember_me = st.checkbox("Recuérdame")
+        remember_me = st.checkbox("Recuérdame", key="remember_me")
 
         # Botón para iniciar sesión
         if st.button("Iniciar Sesión"):
