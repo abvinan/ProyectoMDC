@@ -9,6 +9,7 @@ from sklearn.model_selection import train_test_split
 # AUTENTICACIÓN
 USER_CREDENTIALS = {"username": "admin", "password": "password123"}
 
+
 # CSS para ajustar el diseño de la ventana de inicio de sesión
 st.markdown("""
     <style>
@@ -19,10 +20,9 @@ st.markdown("""
     }
     .main-container {
         display: flex;
-        justify-content: flex-start;
-        align-items: flex-start;
-        height: 4vh;
-        margin-top: 4vh;
+        justify-content: center; /* Centra horizontalmente */
+        align-items: center;    /* Centra verticalmente */
+        min-height: 100vh;      /* Ocupa toda la altura de la pantalla */
     }
     .login-box {
         background: white;
@@ -30,15 +30,14 @@ st.markdown("""
         border-radius: 10px;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         width: 320px;
-        text-align: left;
-        margin-left: 180px;
+        text-align: center;
+        margin: auto;           /* Centra automáticamente */
     }
     .login-box h1 {
         font-size: 24px;
         font-weight: bold;
         margin-bottom: 15px;
         color: #333;
-        text-align: center;
     }
     .login-box label {
         font-size: 16px;
@@ -46,6 +45,7 @@ st.markdown("""
         color: #555;
         display: block;
         margin-bottom: 8px;
+        text-align: left;
     }
     .login-box input[type="text"], 
     .login-box input[type="password"] {
@@ -127,9 +127,8 @@ def autenticar_usuario():
         st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
 
         # Cerrar contenedores
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de login-box
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre de main-container
 
 
 
