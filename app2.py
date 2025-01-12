@@ -103,41 +103,17 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Contenedor principal con el diseño ajustado
-        st.markdown("""
-        <div class="main-container">
-            <div class="login-box">
-                <h1>Iniciar sesión</h1>
-                <form>
-                    <!-- Campo de Usuario -->
-                    <label for="username">Usuario</label>
-                    <input id="username" type="text" placeholder="Ingrese su usuario">
+        # Contenedor principal
+        st.markdown('<div class="main-container">', unsafe_allow_html=True)
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
 
-                    <!-- Campo de Contraseña -->
-                    <label for="password">Contraseña</label>
-                    <input id="password" type="password" placeholder="Ingrese su contraseña">
-
-                    <!-- Casilla de "Recuérdame" -->
-                    <div class="remember-me">
-                        <input type="checkbox" id="remember">
-                        <label for="remember">Recuérdame</label>
-                    </div>
-
-                    <!-- Botón de Inicio de Sesión -->
-                    <button type="button" id="login-button">Iniciar Sesión</button>
-                </form>
-
-                <!-- Enlace de "¿Olvidaste tu contraseña?" -->
-                <div class="extras">
-                    <a href="#">¿Olvidaste tu contraseña?</a>
-                </div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # Código de validación en Streamlit
+        # Capturar credenciales de usuario y contraseña
         username = st.text_input("Usuario", placeholder="Ingrese su usuario")
         password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña")
+
+        # Casilla de "Recuérdame"
+        remember_me = st.checkbox("Recuérdame")
 
         # Botón para iniciar sesión
         if st.button("Iniciar Sesión"):
@@ -147,6 +123,12 @@ def autenticar_usuario():
             else:
                 st.error("Usuario o contraseña incorrectos.")
 
+        # Enlace de "¿Olvidaste tu contraseña?"
+        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
+
+        # Cerrar contenedores
+        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 
