@@ -105,10 +105,14 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Contenedor principal
+        st.write("")  # Borra cualquier contenido residual
         st.markdown('<div class="main-container">', unsafe_allow_html=True)
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        # Código del formulario de inicio de sesión
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre del contenedor .login-box
+        st.markdown('</div>', unsafe_allow_html=True)  # Cierre del contenedor .main-container
         st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
+
 
         # Capturar credenciales de usuario y contraseña
         username = st.text_input("Usuario", placeholder="Ingrese su usuario")
