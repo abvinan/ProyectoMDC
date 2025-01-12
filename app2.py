@@ -107,46 +107,28 @@ def autenticar_usuario():
             <div class="main-container">
                 <div class="login-box">
                     <h1>Iniciar sesión</h1>
-                    <form>
-                        <label for="username">Usuario</label>
-                        <input id="username" type="text" placeholder="Ingrese su usuario">
-                        <label for="password">Contraseña</label>
-                        <input id="password" type="password" placeholder="Ingrese su contraseña">
-                        <div class="remember-me">
-                            <input type="checkbox" id="remember">
-                            <label for="remember">Recuérdame</label>
-                        </div>
-                        <button type="button" id="login-button">Iniciar Sesión</button>
-                        <div class="extras">
-                            <a href="#">¿Olvidaste tu contraseña?</a>
-                        </div>
-                    </form>
                 </div>
             </div>
         ''', unsafe_allow_html=True)
 
-        # Simulación de entrada conectada a Streamlit
-        username = st.text_input("Usuario", placeholder="Ingrese su usuario", label_visibility="hidden")
-        password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", label_visibility="hidden")
+        # Capturar credenciales de usuario y contraseña
+        username = st.text_input("Usuario:", placeholder="Ingrese su usuario", key="username_input")
+        password = st.text_input("Contraseña:", type="password", placeholder="Ingrese su contraseña", key="password_input")
 
-        # Botón para autenticar
-        if st.button("Iniciar Sesión"):
+        # Casilla de "Recuérdame"
+        remember_me = st.checkbox("Recuérdame", key="remember_me_checkbox")
+
+        # Botón para iniciar sesión
+        if st.button("Iniciar Sesión", key="login_button"):
             if username == "admin" and password == "password123":
                 st.session_state["autenticado"] = True
-                st.success("Inicio de sesión exitoso")
+                st.success("Inicio de sesión exitoso. Redirigiendo...")
             else:
-                st.error("Usuario o contraseña incorrectos")
+                st.error("Usuario o contraseña incorrectos.")
 
-# Inicializar estado de autenticación
-if "autenticado" not in st.session_state:
-    st.session_state["autenticado"] = False
+        # Enlace de "¿Olvidaste tu contraseña?"
+        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
 
-# Llamar a la función de autenticación
-autenticar_usuario()
-
-if st.session_state["autenticado"]:
-    st.title("Bienvenido a la Aplicación de Recomendación")
-    st.write("¡La aplicación está funcionando correctamente!")
 
 
 
