@@ -15,39 +15,7 @@ def autenticar_usuario():
         st.session_state["autenticado"] = False
 
     if not st.session_state["autenticado"]:
-        # Usar HTML y CSS para encapsular todos los elementos dentro de un contenedor
-        st.markdown('''
-            <div class="main-container">
-                <div class="login-box">
-                    <h1>Iniciar sesión</h1>
-                    <form>
-                        <!-- Campo de Usuario -->
-                        <label for="username">Usuario</label>
-                        <input id="username" name="username" type="text" placeholder="Ingrese su usuario">
-                        
-                        <!-- Campo de Contraseña -->
-                        <label for="password">Contraseña</label>
-                        <input id="password" name="password" type="password" placeholder="Ingrese su contraseña">
-                        
-                        <!-- Casilla "Recuérdame" -->
-                        <div class="remember-me">
-                            <input type="checkbox" id="remember" name="remember">
-                            <label for="remember">Recuérdame</label>
-                        </div>
-                        
-                        <!-- Botón de Inicio de Sesión -->
-                        <button type="button" id="login-button">Iniciar Sesión</button>
-                        
-                        <!-- Enlace de "¿Olvidaste tu contraseña?" -->
-                        <div class="extras">
-                            <a href="#">¿Olvidaste tu contraseña?</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        ''', unsafe_allow_html=True)
-
-        # CSS para ajustar el diseño
+        # CSS para la estructura del contenedor
         st.markdown('''
             <style>
                 .main-container {
@@ -63,14 +31,13 @@ def autenticar_usuario():
                     border-radius: 10px;
                     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
                     width: 320px;
-                    text-align: left;
+                    text-align: center;
                 }
                 .login-box h1 {
                     font-size: 24px;
                     font-weight: bold;
                     margin-bottom: 15px;
                     color: #333;
-                    text-align: center;
                 }
                 .login-box label {
                     font-size: 14px;
@@ -78,6 +45,7 @@ def autenticar_usuario():
                     color: #555;
                     display: block;
                     margin-bottom: 5px;
+                    text-align: left;
                 }
                 .login-box input[type="text"], 
                 .login-box input[type="password"] {
@@ -129,17 +97,36 @@ def autenticar_usuario():
             </style>
         ''', unsafe_allow_html=True)
 
-        # Lógica para autenticar con Streamlit (dentro del contenedor)
+        # Estructura HTML con elementos Streamlit integrados
+        st.markdown('<div class="main-container">', unsafe_allow_html=True)
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+
+        # Título del formulario
+        st.markdown('<h1>Iniciar sesión</h1>', unsafe_allow_html=True)
+
+        # Campo de usuario
         username = st.text_input("Usuario", placeholder="Ingrese su usuario", label_visibility="collapsed")
+
+        # Campo de contraseña
         password = st.text_input("Contraseña", type="password", placeholder="Ingrese su contraseña", label_visibility="collapsed")
+
+        # Casilla "Recuérdame"
         remember_me = st.checkbox("Recuérdame")
 
+        # Botón de inicio de sesión
         if st.button("Iniciar Sesión"):
             if username == "admin" and password == "password123":
                 st.session_state["autenticado"] = True
                 st.success("Inicio de sesión exitoso. Redirigiendo...")
             else:
                 st.error("Usuario o contraseña incorrectos.")
+
+        # Enlace "¿Olvidaste tu contraseña?"
+        st.markdown('<div class="extras"><a href="#">¿Olvidaste tu contraseña?</a></div>', unsafe_allow_html=True)
+
+        # Cierre de contenedores
+        st.markdown('</div>', unsafe_allow_html=True)  # .login-box
+        st.markdown('</div>', unsafe_allow_html=True)  # .main-container
 
 # Inicializar estado de autenticación
 if "autenticado" not in st.session_state:
@@ -152,8 +139,6 @@ autenticar_usuario()
 if st.session_state["autenticado"]:
     st.title("Bienvenido a la Aplicación de Recomendación")
     st.write("¡La aplicación está funcionando correctamente!")
-
-
 
 
 
