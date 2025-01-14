@@ -125,6 +125,7 @@ elif menu_seleccion == "Recomendaciones":
         st.table(df_combos)
         seleccion_indices = st.multiselect("Seleccione los índices de los combos que desea considerar:", df_combos.index.tolist())
         st.session_state.combos_seleccionados = df_combos.loc[seleccion_indices]
+
 # Ventana 3: Resumen de Combos Seleccionados
 elif menu_seleccion == "Resumen de Combos Seleccionados":
     st.header("Resumen de Combos Seleccionados")
@@ -175,3 +176,5 @@ elif menu_seleccion == "Resumen de Combos Seleccionados":
             st.write("No se han generado datos de resumen para los combos seleccionados.")
     else:
         st.write("No se han seleccionado combos para mostrar el resumen.")
+
+
